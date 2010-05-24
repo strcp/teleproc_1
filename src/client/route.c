@@ -48,6 +48,7 @@ struct route *add_client_route(const char *dest,
 
 	croute->dest.s_addr = inet_addr(dest);
 	croute->genmask.s_addr = inet_addr(genmask);
+	printf("Inserindo: %d - %d\n", croute->genmask.s_addr, inet_addr(genmask));
 	croute->gateway.s_addr = inet_addr(gateway);
 	croute->iface = strdup(iface);
 
@@ -66,8 +67,8 @@ struct route *add_client_route(const char *dest,
 }
 
 int del_client_route(const char *dest,
-					 const char *genmask,
 					 const char *gateway,
+					 const char *genmask,
 					 char *iface)
 {
 	struct route *ptr, *gf;
@@ -78,12 +79,16 @@ int del_client_route(const char *dest,
 		return -1;
 	}
 
+
 	for (ptr = client_route; ptr; gf = ptr, ptr = ptr->next) {
 		if ((ptr->dest.s_addr == inet_addr(dest)) &&
 			(ptr->genmask.s_addr == inet_addr(genmask)) &&
 			(ptr->gateway.s_addr == inet_addr(gateway)) &&
 			(!strcmp(ptr->iface, iface))) {
-			gf->next = ptr->next;
+			if(ptr == client_route)		//Se o nodo for o primeiro
+				client_route = ptr->next;
+			else
+				gf->next = ptr->next;
 			free_route(ptr);
 		}
 	}
