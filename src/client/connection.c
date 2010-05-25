@@ -18,6 +18,27 @@
 
 #define ROUTER_PORT 6666
 
+#if 0
+unsigned short crc16(char *data)
+{
+	unsigned short crc_poly = 0x8408;
+	unsigned short crc_preset = 0xFFFF;
+	
+	unsigned crc = crc_preset;
+	for (i = 0; i < cnt; i++) /* cnt = number of protocol bytes without CRC */
+	{
+		crc ^= DATA[i];
+		for (j = 0; j < 8; j++)
+		{
+			if (crc & 0x0001)
+				crc = (crc >> 1) ^ crc_poly;
+			else
+				crc = (crc >> 1);
+		}
+	}
+}
+#endif
+
 void free_clientnet_info(struct clientnet_info *cinfo)
 {
 	struct clientnet_info *ptr, *next;
