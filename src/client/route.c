@@ -36,12 +36,20 @@ struct route *add_client_route(const char *dest,
 					 char *iface)
 {
 	struct route *croute, *ptr, *tmp;
+	struct clientnet_info *cinfo;
 
 	if (!iface) {
 		printf("Error adding route.\n");
 
 		return NULL;
 	}
+	/* Verificando se o device está disponível para possuir roteamento */
+	if (!(cinfo = get_iface_info(iface))) {
+		printf("Device unknown or not connected to a IPv4 network.\n");
+		free_clientnet_info(cinfo);
+		return NULL;
+	}
+	free_clientnet_info(cinfo);
 
 	croute = malloc(sizeof(struct route));
 	memset(croute, 0, sizeof(struct route));
