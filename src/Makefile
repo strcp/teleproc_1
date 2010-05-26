@@ -1,13 +1,16 @@
 CC = gcc
 CFLAGS = -g -W -Wall -I../include
-EXEC = client
+EXEC = client router
 SRC = $(wildcard *.c)
-OBJ = $(SRC:.c=.o)
+OBJ = route.o connection.o
 
 all: $(EXEC)
 
-client: $(OBJ)
-	@$(CC) -o $@ $^
+client: client.o $(OBJ)
+	$(CC) -o $@ $^
+
+router: router.o $(OBJ)
+	$(CC) -o $@ $^
 
 .PHONY: clean mrproper
 clean:
