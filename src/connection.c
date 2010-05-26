@@ -299,7 +299,7 @@ int send_udp_data(const char *daddr,
 		si.sin_addr.s_addr =  croute->gateway.s_addr;
 	}
 
-	if (sendto(sockfd, ip_pkt, ip_pkt->tot_len + len, 0, (struct sockaddr *)&si, sizeof(si)) == -1)
+	if (sendto(sockfd, ip_pkt, sizeof(struct iphdr) + sizeof(struct udphdr) + len, 0, (struct sockaddr *)&si, sizeof(si)) == -1)
 		printf("Error sending packet.\n");
 
 	close(sockfd);
