@@ -10,12 +10,37 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <netinet/ip.h>
+#include <netinet/udp.h>
 #include <arpa/inet.h>
 #include <netdb.h>
 
 #define MYPORT "6666"	// the port users will be connecting to
 
-#define MAXBUFLEN 100
+#define MAXBUFLEN 1000
+
+void _dump_packet_headers(struct iphdr *pkt)
+{
+	struct in_addr tmp;
+	struct udphdr *udp;
+
+	printf("* IP packet dump *\n");
+	tmp.s_addr = pkt->saddr;
+	printf("ip saddr: %s\n", inet_ntoa(tmp));
+	tmp.s_addr = pkt->daddr;
+	printf("ip daddr: %s\n", inet_ntoa(tmp));
+	printf("ip ver: %d\n", pkt->version);
+	printf("packet total length: %d\n", pkt->tot_len);
+	printf("packet id: %d\n", pkt->id);
+	printf("packet ttl: %d\n", pkt->ttl);
+	printf("ip using proto: %d\n", pkt->protocol);
+	printf("ip checksum: %1X\n\n", pkt->check);
+
+	printf("* UDP packet dump *\n");
+	udp = (struct udphdr *)(pkt + sizeof(struct iphdr));
+	printf("dest port: %d\n", udp->dest);
+	printf("src port: %d\n\n", udp->source);
+}
 
 // get sockaddr, IPv4 or IPv6:
 void *get_in_addr(struct sockaddr *sa)
@@ -37,6 +62,7 @@ int main(void)
 	char buf[MAXBUFLEN];
 	size_t addr_len;
 	char s[INET6_ADDRSTRLEN];
+	struct iphdr *ip;
 
 	memset(&hints, 0, sizeof hints);
 	hints.ai_family = AF_UNSPEC; // set to AF_INET to force IPv4
@@ -82,12 +108,13 @@ int main(void)
 	}
 
 	printf("listener: got packet from %s\n",
-		inet_ntop(their_addr.ss_family,
-			get_in_addr((struct sockaddr *)&their_addr),
-			s, sizeof s));
+					inet_ntop(their_addr.ss_family,
+					get_in_addr((struct sockaddr *)&their_addr),
+					s,
+					sizeof(s)));
 	printf("listener: packet is %d bytes long\n", numbytes);
-	buf[numbytes] = '\0';
-	printf("listener: packet contains \"%s\"\n", buf);
+	ip = (struct iphdr *)buf;
+	_dump_packet_headers(ip);
 
 	close(sockfd);
 
