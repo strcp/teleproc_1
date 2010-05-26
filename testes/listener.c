@@ -25,6 +25,7 @@ void _dump_packet_headers(char *packet)
 	struct in_addr tmp;
 	struct udphdr *udp;
 	struct iphdr *ip;
+	char *fuu;
 
 	printf("* IP packet dump *\n");
 	ip = (struct iphdr *)packet;
@@ -44,6 +45,10 @@ void _dump_packet_headers(char *packet)
 	printf("crc: %X\n", udp->check);
 	printf("dest port: %d\n", ntohs(udp->dest));
 	printf("src port: %d\n\n", ntohs(udp->source));
+
+	printf("* DATA packet dump *\n");
+	fuu = ((char *)udp + sizeof(struct udphdr));
+	printf("DATA: (%s)\n", fuu);
 }
 
 // get sockaddr, IPv4 or IPv6:
