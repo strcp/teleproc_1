@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -g -W -Wall -I../../include
+CFLAGS = -g -W -Wall -I../include
 EXEC = client
 SRC = $(wildcard *.c)
 OBJ = $(SRC:.c=.o)
