@@ -14,9 +14,13 @@ struct clientnet_info *get_ifaces_info(void);
 struct clientnet_info *get_iface_info(const char *iface);
 void ifconfig(char *iface);
 struct udphdr *get_udp_packet(struct iphdr *ip);
-struct udphdr *set_udp_packet(struct udphdr *udp, unsigned short src, unsigned short dest);
+struct udphdr *set_udp_packet(struct udphdr *udp,
+								unsigned short src,
+								unsigned short dest,
+								const void *data,
+								size_t len);
 struct iphdr *set_ip_packet(struct iphdr *ip, const in_addr_t saddr, const in_addr_t daddr);
-struct iphdr *create_packet(void);
+struct iphdr *create_packet(size_t data_length);
 int init_network(void);
 void _dump_packet_headers(struct iphdr *pkt);
 int send_udp_data(const char *daddr,

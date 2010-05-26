@@ -170,12 +170,20 @@ struct udphdr *get_udp_packet(struct iphdr *ip)
 	return ip ? (struct udphdr *)(ip + sizeof(struct iphdr)) : NULL;
 }
 
-struct udphdr *set_udp_packet(struct udphdr *udp, unsigned short src, unsigned short dest)
+struct udphdr *set_udp_packet(struct udphdr *udp,
+							unsigned short src,
+							unsigned short dest,
+							const void *data,
+							size_t len)
 {
+	struct udphdr *data_ptr;
+
 	udp->source = src;
 	udp->dest = dest;
-	udp->len = 0;
+	udp->len = len;
 	udp->check = 0xFFFF;
+	data_ptr = (struct udphdr *)(udp + sizeof(struct udphdr));
+	memcpy(data_ptr, data, len);
 
 	return udp;
 }
@@ -202,24 +210,17 @@ struct iphdr *set_ip_packet(struct iphdr *ip, const in_addr_t saddr, const in_ad
 }
 
 /* Returns 0 if error creating package and 1 on success */
-struct iphdr *create_packet()
+struct iphdr *create_packet(size_t data_length)
 {
 	char *packet;
 
-	if (!(packet = (char *)malloc(sizeof(struct iphdr) + sizeof(struct udphdr)))) {
+	if (!(packet = (char *)malloc(sizeof(struct iphdr) + sizeof(struct udphdr) + data_length))) {
 		printf("Error allocating packet.\n");
 		return 0;
 	}
 	memset(packet, 0, sizeof(sizeof(struct iphdr) + sizeof(struct udphdr)));
 
 	return (struct iphdr *)packet;
-}
-
-int init_network(void)
-{
-
-
-	return 1;
 }
 
 void _dump_packet_headers(struct iphdr *pkt)
@@ -239,7 +240,7 @@ void _dump_packet_headers(struct iphdr *pkt)
 	printf("ip using proto: %d\n", pkt->protocol);
 	printf("ip checksum: %1X\n\n", pkt->check);
 
-	printf("* CBP packet dump *\n");
+	printf("* UDP packet dump *\n");
 	udp = (struct udphdr *)(pkt + sizeof(struct iphdr));
 	printf("dest port: %d\n", udp->dest);
 	printf("src port: %d\n\n", udp->source);
@@ -271,10 +272,10 @@ int send_udp_data(const char *daddr,
 	}
 	printf("Gateway: %s\n", inet_ntoa(croute->gateway));
 
-	ip_pkt = create_packet();
+	ip_pkt = create_packet(len);
 	udp = get_udp_packet(ip_pkt);
 
-	set_udp_packet(udp, dport, sport);
+	set_udp_packet(udp, dport, sport, data, len);
 	set_ip_packet(ip_pkt, cinfo->addr.s_addr, inet_addr(daddr));
 
 	memset(&si, 0, sizeof(si));
@@ -297,7 +298,7 @@ int send_udp_data(const char *daddr,
 		si.sin_addr.s_addr =  croute->gateway.s_addr;
 	}
 
-	if (sendto(sockfd, ip_pkt, ip_pkt->tot_len, 0, (struct sockaddr *)&si, sizeof(si)) == -1)
+	if (sendto(sockfd, ip_pkt, ip_pkt->tot_len + len, 0, (struct sockaddr *)&si, sizeof(si)) == -1)
 		printf("Error sending packet.\n");
 
 	close(sockfd);

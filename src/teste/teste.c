@@ -6,8 +6,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-	int
-main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
 	struct ifaddrs *ifaddr, *ifa;
 	int family, s;
