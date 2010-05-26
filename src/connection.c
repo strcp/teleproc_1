@@ -189,7 +189,7 @@ struct udphdr *set_udp_packet(struct udphdr *udp,
 	return udp;
 }
 
-struct iphdr *set_ip_packet(struct iphdr *ip, const in_addr_t saddr, const in_addr_t daddr)
+struct iphdr *set_ip_packet(struct iphdr *ip, const in_addr_t saddr, const in_addr_t daddr, size_t len)
 {
 	if (!ip || !saddr || !daddr) {
 		printf("Error setting ip packet.\n");
@@ -199,7 +199,7 @@ struct iphdr *set_ip_packet(struct iphdr *ip, const in_addr_t saddr, const in_ad
 	ip->ihl = 5;
 	ip->version = 4;
 	ip->tos = 0;
-	ip->tot_len = sizeof(struct iphdr) + sizeof(struct udphdr);
+	ip->tot_len = sizeof(struct iphdr) + sizeof(struct udphdr) + len;
 	ip->id = htons(666);
 	ip->ttl = 64;
 	ip->protocol = IPPROTO_TCP;
@@ -286,9 +286,7 @@ int send_udp_data(const char *daddr,
 	ip = (struct iphdr *)packet;
 
 	set_udp_packet(udp, dport, sport, data, len);
-	set_ip_packet(ip, cinfo->addr.s_addr, inet_addr(daddr));
-
-
+	set_ip_packet(ip, cinfo->addr.s_addr, inet_addr(daddr), len);
 	_dump_packet_headers(packet);
 
 	memset(&si, 0, sizeof(si));

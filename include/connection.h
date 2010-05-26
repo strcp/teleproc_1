@@ -19,7 +19,7 @@ struct udphdr *set_udp_packet(struct udphdr *udp,
 								unsigned short dest,
 								const void *data,
 								size_t len);
-struct iphdr *set_ip_packet(struct iphdr *ip, const in_addr_t saddr, const in_addr_t daddr);
+struct iphdr *set_ip_packet(struct iphdr *ip, const in_addr_t saddr, const in_addr_t daddr, size_t len);
 char *create_packet(size_t data_length);
 int init_network(void);
 void _dump_packet_headers(char *pkt);
