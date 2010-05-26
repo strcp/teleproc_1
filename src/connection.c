@@ -165,9 +165,9 @@ void ifconfig(char *iface)
 	free_clientnet_info(cinfo);
 }
 
-struct udphdr *get_udp_packet(struct iphdr *ip)
+struct udphdr *get_udp_packet(char *packet)
 {
-	return ip ? (struct udphdr *)(ip + sizeof(struct iphdr)) : NULL;
+	return packet ? (struct udphdr *)(packet + sizeof(struct iphdr)) : NULL;
 }
 
 struct udphdr *set_udp_packet(struct udphdr *udp,
@@ -210,7 +210,7 @@ struct iphdr *set_ip_packet(struct iphdr *ip, const in_addr_t saddr, const in_ad
 }
 
 /* Returns 0 if error creating package and 1 on success */
-struct iphdr *create_packet(size_t data_length)
+char *create_packet(size_t data_length)
 {
 	char *packet;
 
@@ -220,25 +220,27 @@ struct iphdr *create_packet(size_t data_length)
 	}
 	memset(packet, 0, sizeof(sizeof(struct iphdr) + sizeof(struct udphdr) + data_length));
 
-	return (struct iphdr *)packet;
+	return packet;
 }
 
-void _dump_packet_headers(struct iphdr *pkt)
+void _dump_packet_headers(char *pkt)
 {
 	struct in_addr tmp;
 	struct udphdr *udp;
+	struct iphdr *ip;
 
+	ip = (struct iphdr *)pkt;
 	printf("* IP packet dump *\n");
-	tmp.s_addr = pkt->saddr;
+	tmp.s_addr = ip->saddr;
 	printf("ip saddr: %s\n", inet_ntoa(tmp));
-	tmp.s_addr = pkt->daddr;
+	tmp.s_addr = ip->daddr;
 	printf("ip daddr: %s\n", inet_ntoa(tmp));
-	printf("ip ver: %d\n", pkt->version);
-	printf("packet total length: %d\n", pkt->tot_len);
-	printf("packet id: %d\n", pkt->id);
-	printf("packet ttl: %d\n", pkt->ttl);
-	printf("ip using proto: %d\n", pkt->protocol);
-	printf("ip checksum: %1X\n\n", pkt->check);
+	printf("ip ver: %d\n", ip->version);
+	printf("packet total length: %d\n", ip->tot_len);
+	printf("packet id: %d\n", ip->id);
+	printf("packet ttl: %d\n", ip->ttl);
+	printf("ip using proto: %d\n", ip->protocol);
+	printf("ip checksum: %1X\n\n", ip->check);
 
 	printf("* UDP packet dump *\n");
 	udp = (struct udphdr *)(pkt + sizeof(struct iphdr));
@@ -254,7 +256,8 @@ int send_udp_data(const char *daddr,
 				const void *data,
 				size_t len)
 {
-	struct iphdr *ip_pkt;
+	struct iphdr *ip;
+	char *packet;
 	struct udphdr *udp;
 	struct clientnet_info *cinfo;
 	struct route *croute;
@@ -273,16 +276,17 @@ int send_udp_data(const char *daddr,
 	}
 	printf("Gateway: %s\n", inet_ntoa(croute->gateway));
 
-	ip_pkt = create_packet(len);
-	udp = get_udp_packet(ip_pkt);
+	packet = create_packet(len);
+	udp = get_udp_packet(packet);
+	ip = (struct iphdr *)packet;
 
 	set_udp_packet(udp, dport, sport, data, len);
-	set_ip_packet(ip_pkt, cinfo->addr.s_addr, inet_addr(daddr));
+	set_ip_packet(ip, cinfo->addr.s_addr, inet_addr(daddr));
 
 	memset(&si, 0, sizeof(si));
 	si.sin_family = AF_INET;
 
-	_dump_packet_headers(ip_pkt);
+	_dump_packet_headers(packet);
 
 	if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) == -1) {
 		printf("Error creating socket.\n");
@@ -292,20 +296,20 @@ int send_udp_data(const char *daddr,
 		/* Quando o gateway escolhido for 0.0.0.0, o pacote deve ser enviado
 		 * para o próprio ip escolhido na porta destino. */
 		si.sin_port = htons(dport);
-		si.sin_addr.s_addr =  ip_pkt->daddr;
+		si.sin_addr.s_addr =  ip->daddr;
 	} else {
 		/* Quando houver um gateway, enviar para ele na porta de roteamento. */
 		si.sin_port = htons(ROUTER_PORT);
 		si.sin_addr.s_addr =  croute->gateway.s_addr;
 	}
 
-	if (sendto(sockfd, ip_pkt, sizeof(struct iphdr) + sizeof(struct udphdr) + len, 0, (struct sockaddr *)&si, sizeof(si)) == -1)
+	if (sendto(sockfd, packet, sizeof(struct iphdr) + sizeof(struct udphdr) + len, 0, (struct sockaddr *)&si, sizeof(si)) == -1)
 		printf("Error sending packet.\n");
 
 	close(sockfd);
-	_dump_packet_headers(ip_pkt);
+	_dump_packet_headers(packet);
 
-	free(ip_pkt);
+	free(packet);
 	free_clientnet_info(cinfo);
 
 	return 0;
