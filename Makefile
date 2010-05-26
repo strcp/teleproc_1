@@ -5,10 +5,10 @@ CFLAGS = -Wall -ansi
 	OBJ = $(SRC:.c=.o)
 
 all:
-	cd src/client && $(MAKE)
+	cd src && $(MAKE)
 
 .PHONY: clean mrproper
 
 clean:
-	cd src/client && rm -rf *.o *~ $(EXEC)
+	cd src/ && rm -rf *.o *~ $(EXEC)
 
