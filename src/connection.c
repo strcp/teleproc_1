@@ -7,35 +7,39 @@
 #include <sys/types.h>
 #include <netinet/in.h>
 #include <netinet/ip.h>
+#include <netinet/udp.h>
 #include <arpa/inet.h>
 
 #include <ifaddrs.h>
 #include <netdb.h>
 
-#include <cbproto.h>
 #include <route.h>
 #include <connection.h>
 
 #define ROUTER_PORT 6666
 
 #if 0
-unsigned short crc16(char *data)
+unsigned short in_cksum(unsigned short *addr, int len)
 {
-	unsigned short crc_poly = 0x8408;
-	unsigned short crc_preset = 0xFFFF;
-	
-	unsigned crc = crc_preset;
-	for (i = 0; i < cnt; i++) /* cnt = number of protocol bytes without CRC */
-	{
-		crc ^= DATA[i];
-		for (j = 0; j < 8; j++)
-		{
-			if (crc & 0x0001)
-				crc = (crc >> 1) ^ crc_poly;
-			else
-				crc = (crc >> 1);
-		}
+	int nleft = len;
+	int sum = 0;
+	unsigned short *w = addr;
+	unsigned short answer = 0;
+
+	while (nleft > 1) {
+		sum += *w++;
+		nleft -= 2;
 	}
+
+	if (nleft == 1) {
+		*(unsigned char *) (&answer) = *(unsigned char *) w;
+		sum += answer;
+	}
+
+	sum = (sum >> 16) + (sum & 0xFFFF);
+	sum += (sum >> 16);
+	answer = ~sum;
+	return (answer);
 }
 #endif
 
@@ -161,17 +165,19 @@ void ifconfig(char *iface)
 	free_clientnet_info(cinfo);
 }
 
-struct cbphdr *get_cbp_packet(struct iphdr *ip)
+struct udphdr *get_udp_packet(struct iphdr *ip)
 {
-	return ip ? (struct cbphdr *)(ip + sizeof(struct iphdr)) : NULL;
+	return ip ? (struct udphdr *)(ip + sizeof(struct iphdr)) : NULL;
 }
 
-struct cbphdr *set_cbp_packet(struct cbphdr *cbp, unsigned short src, unsigned short dest)
+struct udphdr *set_udp_packet(struct udphdr *udp, unsigned short src, unsigned short dest)
 {
-	cbp->source = src;
-	cbp->dest = dest;
+	udp->source = src;
+	udp->dest = dest;
+	udp->len = 0;
+	udp->check = 0xFFFF;
 
-	return cbp;
+	return udp;
 }
 
 struct iphdr *set_ip_packet(struct iphdr *ip, const in_addr_t saddr, const in_addr_t daddr)
@@ -184,7 +190,7 @@ struct iphdr *set_ip_packet(struct iphdr *ip, const in_addr_t saddr, const in_ad
 	ip->ihl = 5;
 	ip->version = 4;
 	ip->tos = 0;
-	ip->tot_len = sizeof(struct iphdr) + sizeof(struct cbphdr);
+	ip->tot_len = sizeof(struct iphdr) + sizeof(struct udphdr);
 	ip->id = htons(666);
 	ip->ttl = 64;
 	ip->protocol = IPPROTO_TCP;
@@ -200,11 +206,11 @@ struct iphdr *create_packet()
 {
 	char *packet;
 
-	if (!(packet = (char *)malloc(sizeof(struct iphdr) + sizeof(struct cbphdr)))) {
+	if (!(packet = (char *)malloc(sizeof(struct iphdr) + sizeof(struct udphdr)))) {
 		printf("Error allocating packet.\n");
 		return 0;
 	}
-	memset(packet, 0, sizeof(sizeof(struct iphdr) + sizeof(struct cbphdr)));
+	memset(packet, 0, sizeof(sizeof(struct iphdr) + sizeof(struct udphdr)));
 
 	return (struct iphdr *)packet;
 }
@@ -219,7 +225,7 @@ int init_network(void)
 void _dump_packet_headers(struct iphdr *pkt)
 {
 	struct in_addr tmp;
-	struct cbphdr *cbp;
+	struct udphdr *udp;
 
 	printf("* IP packet dump *\n");
 	tmp.s_addr = pkt->saddr;
@@ -234,20 +240,20 @@ void _dump_packet_headers(struct iphdr *pkt)
 	printf("ip checksum: %1X\n\n", pkt->check);
 
 	printf("* CBP packet dump *\n");
-	cbp = (struct cbphdr *)(pkt + sizeof(struct iphdr));
-	printf("dest port: %d\n", cbp->dest);
-	printf("src port: %d\n\n", cbp->source);
+	udp = (struct udphdr *)(pkt + sizeof(struct iphdr));
+	printf("dest port: %d\n", udp->dest);
+	printf("src port: %d\n\n", udp->source);
 }
 
 /* TODO */
-int send_cbp_data(const char *daddr,
+int send_udp_data(const char *daddr,
 				const unsigned short dport,
 				const unsigned short sport,
 				const void *data,
 				size_t len)
 {
 	struct iphdr *ip_pkt;
-	struct cbphdr *cbp;
+	struct udphdr *udp;
 	struct clientnet_info *cinfo;
 	struct route *croute;
 	struct sockaddr_in si;
@@ -266,9 +272,9 @@ int send_cbp_data(const char *daddr,
 	printf("Gateway: %s\n", inet_ntoa(croute->gateway));
 
 	ip_pkt = create_packet();
-	cbp = get_cbp_packet(ip_pkt);
+	udp = get_udp_packet(ip_pkt);
 
-	set_cbp_packet(cbp, dport, sport);
+	set_udp_packet(udp, dport, sport);
 	set_ip_packet(ip_pkt, cinfo->addr.s_addr, inet_addr(daddr));
 
 	memset(&si, 0, sizeof(si));

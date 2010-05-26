@@ -10,7 +10,6 @@
 #include <ifaddrs.h>
 #include <netdb.h>
 
-#include <cbproto.h>
 #include <connection.h>
 #include <route.h>
 
