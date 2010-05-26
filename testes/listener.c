@@ -14,31 +14,33 @@
 #include <netinet/udp.h>
 #include <arpa/inet.h>
 #include <netdb.h>
+#include <string.h>
 
 #define MYPORT "6666"	// the port users will be connecting to
 
 #define MAXBUFLEN 1000
 
-void _dump_packet_headers(struct iphdr *pkt)
+void _dump_packet_headers(char *packet)
 {
 	struct in_addr tmp;
 	struct udphdr *udp;
+	struct iphdr *ip;
 
 	printf("* IP packet dump *\n");
-	tmp.s_addr = pkt->saddr;
+	ip = (struct iphdr *)packet;
+	tmp.s_addr = ip->saddr;
 	printf("ip saddr: %s\n", inet_ntoa(tmp));
-	tmp.s_addr = pkt->daddr;
+	tmp.s_addr = ip->daddr;
 	printf("ip daddr: %s\n", inet_ntoa(tmp));
-	printf("ip ver: %d\n", pkt->version);
-	printf("packet total length: %d\n", pkt->tot_len);
-	printf("packet id: %d\n", pkt->id);
-	printf("packet ttl: %d\n", pkt->ttl);
-	printf("ip using proto: %d\n", pkt->protocol);
-	printf("ip checksum: %1X\n\n", pkt->check);
+	printf("ip ver: %d\n", ip->version);
+	printf("packet total length: %d\n", ip->tot_len);
+	printf("packet id: %d\n", ip->id);
+	printf("packet ttl: %d\n", ip->ttl);
+	printf("ip using proto: %d\n", ip->protocol);
+	printf("ip checksum: %X\n\n", ip->check);
 
 	printf("* UDP packet dump *\n");
-	udp = (struct udphdr *)(pkt + sizeof(struct iphdr));
-	//udp = (struct udphdr *)(pkt + 20);
+	udp = (struct udphdr *)(packet + sizeof(struct iphdr));
 	printf("crc: %X\n", udp->check);
 	printf("dest port: %d\n", ntohs(udp->dest));
 	printf("src port: %d\n\n", ntohs(udp->source));
@@ -61,16 +63,16 @@ int main(void)
 	int rv;
 	int numbytes;
 	struct sockaddr_storage their_addr;
-	char buf[MAXBUFLEN];
+	//char buf[MAXBUFLEN];
 	size_t addr_len;
 	char s[INET6_ADDRSTRLEN];
-	struct iphdr *ip;
+	char *buf;
 
 	memset(&hints, 0, sizeof hints);
 	hints.ai_family = AF_UNSPEC; // set to AF_INET to force IPv4
 	hints.ai_socktype = SOCK_DGRAM;
 	hints.ai_flags = AI_PASSIVE; // use my IP
-	memset(buf, 0, MAXBUFLEN);
+
 
 	if ((rv = getaddrinfo(NULL, MYPORT, &hints, &servinfo)) != 0) {
 		fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
@@ -104,6 +106,10 @@ int main(void)
 	printf("listener: waiting to recvfrom...\n");
 
 	addr_len = sizeof their_addr;
+
+	buf = malloc(MAXBUFLEN);
+	memset(buf, 0, MAXBUFLEN);
+
 	if ((numbytes = recvfrom(sockfd, buf, MAXBUFLEN-1 , 0,
 		(struct sockaddr *)&their_addr, &addr_len)) == -1) {
 		perror("recvfrom");
@@ -116,10 +122,10 @@ int main(void)
 					s,
 					sizeof(s)));
 	printf("listener: packet is %d bytes long\n", numbytes);
-	ip = (struct iphdr *)buf;
-	_dump_packet_headers(ip);
+	_dump_packet_headers(buf);
 
 	close(sockfd);
+	free(buf);
 
 	return 0;
 }
