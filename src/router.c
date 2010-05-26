@@ -41,7 +41,7 @@ void where_to_send(char* msg){
 	struct udphdr *udp;
 	char *data;
 	struct in_addr aux;
-	
+	unsigned short old_check;
 	ip = (struct iphdr *)msg;
 	udp = (struct udphdr *)(msg + sizeof(struct iphdr));
 	data = ((char *)udp + sizeof(struct udphdr));
@@ -49,8 +49,9 @@ void where_to_send(char* msg){
 	aux.s_addr = ip->daddr;
 	printf("Enviar pacote para %s\n", inet_ntoa(aux));
 	printf("data = %s\n", data);
-	printf("ip->check == %X\t newcheck == %X\n", ip->check, (unsigned short)in_cksum((unsigned short *)ip, ip->tot_len));
-	if(ip->check == (unsigned short)in_cksum((unsigned short *)ip, ip->tot_len))
+	old_check = ip->check;
+	ip->check = 0;
+	if(old_check == (unsigned short)in_cksum((unsigned short *)ip, ip->tot_len))
 		printf("IP CHECK OK\n");
 	ip->ttl--;
 	ip->check = (unsigned short)in_cksum((unsigned short *)ip, ip->tot_len);

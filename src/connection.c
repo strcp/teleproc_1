@@ -123,7 +123,6 @@ struct clientnet_info *get_iface_info(const char *iface)
 		return NULL;
 
 	cinfo = get_ifaces_info();
-
 	for (ptr = cinfo; ptr; ptr = ptr->next) {
 		if (!strcmp(iface, ptr->iface)) {
 			cinfo_ret = malloc(sizeof(struct clientnet_info));
@@ -203,6 +202,7 @@ struct iphdr *set_ip_packet(struct iphdr *ip, const in_addr_t saddr, const in_ad
 	ip->protocol = IPPROTO_TCP;
 	ip->saddr = saddr;
 	ip->daddr = daddr;
+	ip->check = 0;
 	ip->check = (unsigned short)in_cksum((unsigned short *)ip, ip->tot_len);
 
 	return ip;
@@ -269,6 +269,7 @@ int send_udp_data(const char *daddr,
 	int sockfd;
 
 
+	printf("daddr = %s\n",daddr);
 	if (!(croute = get_route_by_daddr(daddr))) {
 		printf("Error getting route rule\n");
 		return -1;
@@ -305,7 +306,6 @@ int send_udp_data(const char *daddr,
 		si.sin_port = htons(ROUTER_PORT);
 		si.sin_addr.s_addr =  croute->gateway.s_addr;
 	}
-
 	if (sendto(sockfd, packet, sizeof(struct iphdr) + sizeof(struct udphdr) + len, 0, (struct sockaddr *)&si, sizeof(si)) == -1)
 		printf("Error sending packet.\n");
 
