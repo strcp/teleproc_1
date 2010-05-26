@@ -1,5 +1,4 @@
-- Adicionar dados ao pacote com os headers (apenas concatenar no final do cbp?)
-
+- Usar htons nos headers?
+- Adicionar dados ao pacote com os headers
 - Receber pacotes, fazer o dump dos headers e salvar o arquivo.
-
 - Adicionar checksum.
