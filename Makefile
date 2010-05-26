@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -ansi
+CFLAGS = -Wall -ansi -lpthread
 EXEC = client router
 SRC = $(wildcard *.c)
 OBJ = $(SRC:.c=.o)

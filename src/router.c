@@ -17,68 +17,15 @@
 #include <string.h>
 #include <pthread.h>
 
+#include <route.h>
+#include <connection.h>
+
 #define MYPORT "6666"	// the port users will be connecting to
 
 #define MAXBUFLEN 1000
-
-unsigned short in_cksum(unsigned short *addr, int len)
-{
-	int nleft = len;
-	int sum = 0;
-	unsigned short *w = addr;
-	unsigned short answer = 0;
-
-	while (nleft > 1) {
-		sum += *w++;
-		nleft -= 2;
-	}
-
-	if (nleft == 1) {
-		*(unsigned char *)(&answer) = *(unsigned char *)w;
-		sum += answer;
-	}
-
-	sum = (sum >> 16) + (sum & 0xFFFF);
-	sum += (sum >> 16);
-	answer = ~sum;
-
-	return (answer);
-}
-
-void _dump_packet_headers(char *packet)
-{
-	struct in_addr tmp;
-	struct udphdr *udp;
-	struct iphdr *ip;
-	char *fuu;
-
-	printf("* IP packet dump *\n");
-	ip = (struct iphdr *)packet;
-	tmp.s_addr = ip->saddr;
-	printf("ip saddr: %s\n", inet_ntoa(tmp));
-	tmp.s_addr = ip->daddr;
-	printf("ip daddr: %s\n", inet_ntoa(tmp));
-	printf("ip ver: %d\n", ip->version);
-	printf("packet total length: %d\n", ip->tot_len);
-	printf("packet id: %d\n", ip->id);
-	printf("packet ttl: %d\n", ip->ttl);
-	printf("ip using proto: %d\n", ip->protocol);
-	printf("ip checksum: %X\n", ip->check);
-	ip->check = 0;
+#if 0
 	printf("recalc: %X\n\n", (unsigned short)in_cksum((unsigned short *)ip, ip->tot_len));
-
-
-	printf("* UDP packet dump *\n");
-	udp = (struct udphdr *)(packet + sizeof(struct iphdr));
-	printf("crc: %X\n", udp->check);
-	printf("dest port: %d\n", ntohs(udp->dest));
-	printf("src port: %d\n", ntohs(udp->source));
-
-	printf("* DATA packet dump *\n");
-	fuu = ((char *)udp + sizeof(struct udphdr));
-	printf("DATA: (%s)\n", fuu);
-}
-
+#endif
 // get sockaddr, IPv4 or IPv6:
 void *get_in_addr(struct sockaddr *sa)
 {
@@ -87,6 +34,27 @@ void *get_in_addr(struct sockaddr *sa)
 	}
 
 	return &(((struct sockaddr_in6*)sa)->sin6_addr);
+}
+
+void where_to_send(char* msg){
+	struct iphdr *ip;
+	struct udphdr *udp;
+	char *data;
+	struct in_addr aux;
+	
+	ip = (struct iphdr *)msg;
+	udp = (struct udphdr *)(msg + sizeof(struct iphdr));
+	data = ((char *)udp + sizeof(struct udphdr));
+	
+	aux.s_addr = ip->daddr;
+	printf("Enviar pacote para %s\n", inet_ntoa(aux));
+	printf("data = %s\n", data);
+	printf("ip->check == %X\t newcheck == %X\n", ip->check, (unsigned short)in_cksum((unsigned short *)ip, ip->tot_len));
+	if(ip->check == (unsigned short)in_cksum((unsigned short *)ip, ip->tot_len))
+		printf("IP CHECK OK\n");
+	ip->ttl--;
+	ip->check = (unsigned short)in_cksum((unsigned short *)ip, ip->tot_len);
+	//_dump_packet_headers(msg);
 }
 
 void *listener()
@@ -98,7 +66,7 @@ void *listener()
 	struct sockaddr_storage their_addr;
 	//char buf[MAXBUFLEN];
 	size_t addr_len;
-	char s[INET6_ADDRSTRLEN];
+	//char s[INET6_ADDRSTRLEN];
 	char *buf;
 
 	memset(&hints, 0, sizeof hints);
@@ -148,37 +116,44 @@ void *listener()
 			perror("recvfrom");
 			exit(1);
 		}
-
-		printf("listener: got packet from %s\n",
+		
+		where_to_send(buf);
+		/*printf("listener: got packet from %s\n",
 				inet_ntop(their_addr.ss_family,
 					get_in_addr((struct sockaddr *)&their_addr),
 					s,
 					sizeof(s)));
 		
 		printf("listener: packet is %d bytes long\n", numbytes);
-		_dump_packet_headers(buf);
+		_dump_packet_headers(buf);*/
 		sleep(1);
 	}
 	close(sockfd);
 	free(buf);
 
-	return 0;
+	pthread_exit((void*) 0);
 }
 int main(){
 	pthread_t th;
 	void *status;
 	char cmd[123];
+	
+	ifconfig("eth0");	
+	add_client_route("0.0.0.0","127.0.0.1","0.0.0.0","eth0");
 
 	pthread_create(&th, NULL, listener, NULL);
 	
 	if(fork()){
 		pthread_join(th, &status);
-		printf("Saindo da thread");
+		printf("Show Statistics\n");
 
 	}else{
+		//Child still have access to opac instances
+		show_route_table();
 		while(1){
 			printf("router> ");
 			scanf("%s",cmd);
 		}
 	}
+	return 0;
 }
