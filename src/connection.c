@@ -176,13 +176,14 @@ struct udphdr *set_udp_packet(struct udphdr *udp,
 							const void *data,
 							size_t len)
 {
-	struct udphdr *data_ptr;
+	char *data_ptr;
 
 	udp->source = htons(src);
 	udp->dest = htons(dest);
 	udp->len = htons(sizeof(struct udphdr) + len);
 	udp->check = 0;
-	data_ptr = (struct udphdr *)(udp + sizeof(struct udphdr));
+
+	data_ptr = ((char *)udp + sizeof(struct udphdr));
 	memcpy(data_ptr, data, len);
 
 	return udp;
@@ -228,6 +229,7 @@ void _dump_packet_headers(char *pkt)
 	struct in_addr tmp;
 	struct udphdr *udp;
 	struct iphdr *ip;
+	char *data;
 
 	ip = (struct iphdr *)pkt;
 	printf("* IP packet dump *\n");
@@ -247,6 +249,10 @@ void _dump_packet_headers(char *pkt)
 	printf("dest port: %d\n", ntohs(udp->dest));
 	printf("src port: %d\n", ntohs(udp->source));
 	printf("length: %d\n\n", ntohs(udp->len));
+
+	printf("* DATA packet dump *\n");
+	data = ((char *)udp + sizeof(struct udphdr));
+	printf("data: (%s)\n\n", data);
 }
 
 int send_udp_data(const char *daddr,
@@ -281,6 +287,7 @@ int send_udp_data(const char *daddr,
 
 	set_udp_packet(udp, dport, sport, data, len);
 	set_ip_packet(ip, cinfo->addr.s_addr, inet_addr(daddr));
+
 
 	_dump_packet_headers(packet);
 
