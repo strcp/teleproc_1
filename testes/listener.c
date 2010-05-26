@@ -38,8 +38,10 @@ void _dump_packet_headers(struct iphdr *pkt)
 
 	printf("* UDP packet dump *\n");
 	udp = (struct udphdr *)(pkt + sizeof(struct iphdr));
-	printf("dest port: %d\n", udp->dest);
-	printf("src port: %d\n\n", udp->source);
+	//udp = (struct udphdr *)(pkt + 20);
+	printf("crc: %X\n", udp->check);
+	printf("dest port: %d\n", ntohs(udp->dest));
+	printf("src port: %d\n\n", ntohs(udp->source));
 }
 
 // get sockaddr, IPv4 or IPv6:
@@ -68,6 +70,7 @@ int main(void)
 	hints.ai_family = AF_UNSPEC; // set to AF_INET to force IPv4
 	hints.ai_socktype = SOCK_DGRAM;
 	hints.ai_flags = AI_PASSIVE; // use my IP
+	memset(buf, 0, MAXBUFLEN);
 
 	if ((rv = getaddrinfo(NULL, MYPORT, &hints, &servinfo)) != 0) {
 		fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));

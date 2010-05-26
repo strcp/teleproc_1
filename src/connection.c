@@ -178,10 +178,10 @@ struct udphdr *set_udp_packet(struct udphdr *udp,
 {
 	struct udphdr *data_ptr;
 
-	udp->source = src;
-	udp->dest = dest;
-	udp->len = len;
-	udp->check = 0xFFFF;
+	udp->source = htons(src);
+	udp->dest = htons(dest);
+	udp->len = htons(sizeof(struct udphdr) + len);
+	udp->check = 0;
 	data_ptr = (struct udphdr *)(udp + sizeof(struct udphdr));
 	memcpy(data_ptr, data, len);
 
@@ -218,7 +218,7 @@ struct iphdr *create_packet(size_t data_length)
 		printf("Error allocating packet.\n");
 		return 0;
 	}
-	memset(packet, 0, sizeof(sizeof(struct iphdr) + sizeof(struct udphdr)));
+	memset(packet, 0, sizeof(sizeof(struct iphdr) + sizeof(struct udphdr) + data_length));
 
 	return (struct iphdr *)packet;
 }
@@ -242,8 +242,9 @@ void _dump_packet_headers(struct iphdr *pkt)
 
 	printf("* UDP packet dump *\n");
 	udp = (struct udphdr *)(pkt + sizeof(struct iphdr));
-	printf("dest port: %d\n", udp->dest);
-	printf("src port: %d\n\n", udp->source);
+	printf("dest port: %d\n", ntohs(udp->dest));
+	printf("src port: %d\n", ntohs(udp->source));
+	printf("length: %d\n\n", ntohs(udp->len));
 }
 
 /* TODO */
@@ -302,6 +303,7 @@ int send_udp_data(const char *daddr,
 		printf("Error sending packet.\n");
 
 	close(sockfd);
+	_dump_packet_headers(ip_pkt);
 
 	free(ip_pkt);
 	free_clientnet_info(cinfo);
