@@ -249,7 +249,6 @@ void _dump_packet_headers(char *pkt)
 	printf("length: %d\n\n", ntohs(udp->len));
 }
 
-/* TODO */
 int send_udp_data(const char *daddr,
 				const unsigned short dport,
 				const unsigned short sport,
@@ -283,10 +282,10 @@ int send_udp_data(const char *daddr,
 	set_udp_packet(udp, dport, sport, data, len);
 	set_ip_packet(ip, cinfo->addr.s_addr, inet_addr(daddr));
 
+	_dump_packet_headers(packet);
+
 	memset(&si, 0, sizeof(si));
 	si.sin_family = AF_INET;
-
-	_dump_packet_headers(packet);
 
 	if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) == -1) {
 		printf("Error creating socket.\n");
@@ -307,7 +306,6 @@ int send_udp_data(const char *daddr,
 		printf("Error sending packet.\n");
 
 	close(sockfd);
-	_dump_packet_headers(packet);
 
 	free(packet);
 	free_clientnet_info(cinfo);
