@@ -18,7 +18,6 @@
 
 #define ROUTER_PORT 6666
 
-#if 0
 unsigned short in_cksum(unsigned short *addr, int len)
 {
 	int nleft = len;
@@ -32,16 +31,16 @@ unsigned short in_cksum(unsigned short *addr, int len)
 	}
 
 	if (nleft == 1) {
-		*(unsigned char *) (&answer) = *(unsigned char *) w;
+		*(unsigned char *)(&answer) = *(unsigned char *)w;
 		sum += answer;
 	}
 
 	sum = (sum >> 16) + (sum & 0xFFFF);
 	sum += (sum >> 16);
 	answer = ~sum;
+
 	return (answer);
 }
-#endif
 
 void free_clientnet_info(struct clientnet_info *cinfo)
 {
@@ -181,7 +180,6 @@ struct udphdr *set_udp_packet(struct udphdr *udp,
 	udp->source = htons(src);
 	udp->dest = htons(dest);
 	udp->len = htons(sizeof(struct udphdr) + len);
-	udp->check = 0;
 
 	data_ptr = ((char *)udp + sizeof(struct udphdr));
 	memcpy(data_ptr, data, len);
@@ -205,7 +203,7 @@ struct iphdr *set_ip_packet(struct iphdr *ip, const in_addr_t saddr, const in_ad
 	ip->protocol = IPPROTO_TCP;
 	ip->saddr = saddr;
 	ip->daddr = daddr;
-	ip->check = 0x87e1;
+	ip->check = (unsigned short)in_cksum((unsigned short *)ip, ip->tot_len);
 
 	return ip;
 }
@@ -242,13 +240,14 @@ void _dump_packet_headers(char *pkt)
 	printf("packet id: %d\n", ip->id);
 	printf("packet ttl: %d\n", ip->ttl);
 	printf("ip using proto: %d\n", ip->protocol);
-	printf("ip checksum: %1X\n\n", ip->check);
+	printf("ip checksum: %X\n\n", ip->check);
 
 	printf("* UDP packet dump *\n");
 	udp = (struct udphdr *)(pkt + sizeof(struct iphdr));
 	printf("dest port: %d\n", ntohs(udp->dest));
 	printf("src port: %d\n", ntohs(udp->source));
-	printf("length: %d\n\n", ntohs(udp->len));
+	printf("length: %d\n", ntohs(udp->len));
+	printf("checksum: %X\n\n", udp->check);
 
 	printf("* DATA packet dump *\n");
 	data = ((char *)udp + sizeof(struct udphdr));

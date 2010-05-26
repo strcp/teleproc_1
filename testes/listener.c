@@ -20,6 +20,30 @@
 
 #define MAXBUFLEN 1000
 
+unsigned short in_cksum(unsigned short *addr, int len)
+{
+	int nleft = len;
+	int sum = 0;
+	unsigned short *w = addr;
+	unsigned short answer = 0;
+
+	while (nleft > 1) {
+		sum += *w++;
+		nleft -= 2;
+	}
+
+	if (nleft == 1) {
+		*(unsigned char *)(&answer) = *(unsigned char *)w;
+		sum += answer;
+	}
+
+	sum = (sum >> 16) + (sum & 0xFFFF);
+	sum += (sum >> 16);
+	answer = ~sum;
+
+	return (answer);
+}
+
 void _dump_packet_headers(char *packet)
 {
 	struct in_addr tmp;
@@ -38,13 +62,16 @@ void _dump_packet_headers(char *packet)
 	printf("packet id: %d\n", ip->id);
 	printf("packet ttl: %d\n", ip->ttl);
 	printf("ip using proto: %d\n", ip->protocol);
-	printf("ip checksum: %X\n\n", ip->check);
+	printf("ip checksum: %X\n", ip->check);
+	ip->check = 0;
+	printf("recalc: %X\n\n", (unsigned short)in_cksum((unsigned short *)ip, ip->tot_len));
+
 
 	printf("* UDP packet dump *\n");
 	udp = (struct udphdr *)(packet + sizeof(struct iphdr));
 	printf("crc: %X\n", udp->check);
 	printf("dest port: %d\n", ntohs(udp->dest));
-	printf("src port: %d\n\n", ntohs(udp->source));
+	printf("src port: %d\n", ntohs(udp->source));
 
 	printf("* DATA packet dump *\n");
 	fuu = ((char *)udp + sizeof(struct udphdr));
