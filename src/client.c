@@ -26,8 +26,12 @@ int main()
 
 	send_udp_data("192.168.6.66", 5555, 5556, "fuubar\0", 7);
 
-	cmd = readline(prompt);
-	parse_cmds(cmd);
+	while (1) {
+		cmd = readline(prompt);
+		if (!strcmp(cmd, "exit") || !strcmp(cmd, "quit"))
+			break;
+		parse_cmds(cmd);
+	}
 	cleanup_route_table();
 
 	return 0;
