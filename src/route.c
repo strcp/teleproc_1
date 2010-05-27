@@ -129,7 +129,7 @@ struct route *get_route_by_daddr(const in_addr_t daddr)
 		else if ((daddr & ptr->genmask.s_addr) == ptr->dest.s_addr)
 			return ptr;
 	}
-	
+
 	return def;
 }
 
