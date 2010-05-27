@@ -1,6 +1,8 @@
 - Usar htons nos headers?
 - Passar arquivos abertos em modo binário.
 - Receber pacotes, fazer o dump dos headers e salvar o arquivo.
+- Adicionar um create route, deixando o add apenas para linkar na lista.
+- Adicionar um comparativo com memcmp das rotas.
 
 ROUTER:
 	Log das mensagens RECEBIDAS e ENVIADAS(Repassadas)

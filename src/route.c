@@ -80,7 +80,7 @@ int del_client_route(const char *dest,
 	struct route *ptr, *gf;
 
 	if (!iface) {
-		printf("Error adding route.\n");
+		printf("Error removing route.\n");
 
 		return -1;
 	}
