@@ -55,7 +55,6 @@ struct route *add_client_route(const char *dest,
 
 	croute->dest.s_addr = inet_addr(dest);
 	croute->genmask.s_addr = inet_addr(genmask);
-	printf("Inserindo: %d - %d\n", croute->genmask.s_addr, inet_addr(genmask));
 	croute->gateway.s_addr = inet_addr(gateway);
 	croute->iface = strdup(iface);
 
