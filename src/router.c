@@ -56,10 +56,10 @@ void where_to_send(char* msg)
 
 	old_check = ip->check;
 	ip->check = 0;
-	if (old_check == (unsigned short)in_cksum((unsigned short *)ip, ip->tot_len)) {
+	if (old_check == in_cksum((unsigned short *)ip, ip->tot_len)) {
 		printf("IP CHECK OK: %X\n", old_check);
 		ip->ttl--;
-		ip->check = (unsigned short)in_cksum((unsigned short *)ip, ip->tot_len);
+		ip->check = in_cksum((unsigned short *)ip, ip->tot_len);
 		printf("New CRC: %X\n", ip->check);
 
 		aux.s_addr = ip->daddr;
