@@ -118,15 +118,15 @@ void show_route_table(void)
 	}
 }
 
-struct route *get_route_by_daddr(const char *daddr)
+struct route *get_route_by_daddr(const in_addr_t daddr)
 {
 	struct route *ptr, *def;
-	
+
 	def = NULL;
 	for (ptr = client_route; ptr; ptr = ptr->next) {
 		if (ptr->dest.s_addr == 0)
 			def = ptr;
-		else if ((inet_addr(daddr) & ptr->genmask.s_addr) == ptr->dest.s_addr)
+		else if ((daddr & ptr->genmask.s_addr) == ptr->dest.s_addr)
 			return ptr;
 	}
 	

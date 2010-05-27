@@ -66,7 +66,7 @@ void where_to_send(char* msg)
 		printf("Enviar pacote para %s\n", inet_ntoa(aux));
 		printf("data = %s\n", data);
 
-		if (!(croute = get_route_by_daddr(inet_ntoa(aux)))) {
+		if (!(croute = get_route_by_daddr(aux.s_addr))) {
 			printf("Error getting route rule\n");
 			return -1;
 		}

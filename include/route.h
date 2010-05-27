@@ -22,7 +22,7 @@ int del_client_route(const char *dest,
 					 const char *genmask,
 					 const char *gateway,
 					 char *iface);
-struct route *get_route_by_daddr(const char *daddr);
+struct route *get_route_by_daddr(const in_addr_t daddr);
 
 void free_route(struct route *cr);
 void show_route_table(void);
