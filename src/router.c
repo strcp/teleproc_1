@@ -17,8 +17,12 @@
 #include <string.h>
 #include <pthread.h>
 
+#include <readline/readline.h>
+#include <readline/history.h>
+
 #include <route.h>
 #include <connection.h>
+#include <cmd_parser.h>
 
 #define MYPORT "6666"	// the port users will be connecting to
 #define ROUTER_PORT 6666
@@ -153,7 +157,8 @@ int main()
 {
 	pthread_t th;
 	void *status;
-	char cmd[123];
+	char *cmd;
+	char prompt[] = "router> ";
 
 	ifconfig("eth0");
 	add_client_route("192.168.1.0","0.0.0.0", "255.255.255.0","eth0");
@@ -167,12 +172,16 @@ int main()
 		printf("Show Statistics\n");
 
 	} else {
-		//Child still have access to opac instances
-		show_route_table();
-		while(1) {
-			printf("router> ");
-			scanf("%s",cmd);
+		while (1) {
+			cmd = readline(prompt);
+			if (!strcmp(cmd, "exit") || !strcmp(cmd, "quit"))
+				break;
+			parse_cmds(cmd);
+			if (cmd && *cmd)
+				add_history(cmd);
 		}
 	}
+	clear_history();
+	cleanup_route_table();
 	return 0;
 }
