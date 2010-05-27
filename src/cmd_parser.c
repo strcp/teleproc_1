@@ -47,7 +47,7 @@ void ifconfig_cmd(char *params)
 	if ((p1 = strtok_r(params, " ", &p2))) {
 		ifconfig(p1);
 	} else {
-		ifconfig("");
+		ifconfig(NULL);
 	}
 }
 void parse_cmds(char *full_cmd)

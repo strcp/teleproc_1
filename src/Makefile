@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -g -W -Wall -I../include -lpthread
+CFLAGS = -g -W -Wall -I../include -lpthread -lreadline -lncurses
 EXEC = client router
 SRC = $(wildcard *.c)
 OBJ = route.o connection.o cmd_parser.o
@@ -7,7 +7,7 @@ OBJ = route.o connection.o cmd_parser.o
 all: $(EXEC)
 
 client: client.o $(OBJ)
-	$(CC) -o $@ $^
+	$(CC) -o $@ $^ $(CFLAGS)
 
 router: router.o $(OBJ) 
 	$(CC) -o $@ $^ $(CFLAGS)
