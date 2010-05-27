@@ -1,4 +1,7 @@
 - Usar htons nos headers?
 - Passar arquivos abertos em modo binário.
 - Receber pacotes, fazer o dump dos headers e salvar o arquivo.
-- Adicionar checksum.
+
+ROUTER:
+	Log das mensagens RECEBIDAS e ENVIADAS(Repassadas)
+	Adicionar rotas pela linha de comando

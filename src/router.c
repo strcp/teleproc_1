@@ -21,6 +21,7 @@
 #include <connection.h>
 
 #define MYPORT "6666"	// the port users will be connecting to
+#define ROUTER_PORT 6666
 
 #define MAXBUFLEN 1000
 #if 0
@@ -42,19 +43,60 @@ void where_to_send(char* msg){
 	char *data;
 	struct in_addr aux;
 	unsigned short old_check;
+	struct route *croute;
+	struct clientnet_info *cinfo;
+	struct sockaddr_in si;
+	int sockfd;
+
 	ip = (struct iphdr *)msg;
 	udp = (struct udphdr *)(msg + sizeof(struct iphdr));
 	data = ((char *)udp + sizeof(struct udphdr));
 	
-	aux.s_addr = ip->daddr;
-	printf("Enviar pacote para %s\n", inet_ntoa(aux));
-	printf("data = %s\n", data);
 	old_check = ip->check;
 	ip->check = 0;
-	if(old_check == (unsigned short)in_cksum((unsigned short *)ip, ip->tot_len))
-		printf("IP CHECK OK\n");
-	ip->ttl--;
-	ip->check = (unsigned short)in_cksum((unsigned short *)ip, ip->tot_len);
+	if(old_check == (unsigned short)in_cksum((unsigned short *)ip, ip->tot_len)){
+		printf("IP CHECK OK: %X\n", old_check);
+		ip->ttl--;
+		ip->check = (unsigned short)in_cksum((unsigned short *)ip, ip->tot_len);
+		printf("New CRC: %X\n", ip->check);
+		
+		aux.s_addr = ip->daddr;
+		printf("Enviar pacote para %s\n", inet_ntoa(aux));
+		printf("data = %s\n", data);
+		
+		if (!(croute = get_route_by_daddr(inet_ntoa(aux)))) {
+         	       printf("Error getting route rule\n");
+                	return -1;
+        	}
+        	if (!(cinfo = get_iface_info(croute->iface))) {
+                	printf("Error getting interface.\n");
+                	return -1;
+        	}
+		printf("Gateway: %s\n", inet_ntoa(croute->gateway));
+		
+		memset(&si, 0, sizeof(struct sockaddr_in));
+		si.sin_family = AF_INET;
+		if( (sockfd = socket(AF_INET, SOCK_DGRAM, 0)) == -1){
+			printf("ERROR: creating socket\n");
+			return -1;
+		}
+		if(!croute->gateway.s_addr){
+			printf("Rede Local\n");
+			si.sin_port = udp->dest;
+			si.sin_addr.s_addr = ip->daddr; 
+			printf("Enviar para %s:%d\n", inet_ntoa(si.sin_addr), ntohs(si.sin_port));
+		} else {
+			printf("Rede Remota\n");
+			si.sin_port = htons(ROUTER_PORT);
+			si.sin_addr.s_addr = croute->gateway.s_addr;
+			printf("Enviar para %s:%d\n", inet_ntoa(si.sin_addr), ntohs(si.sin_port));
+		}
+		if (sendto(sockfd, msg, sizeof(struct iphdr) + sizeof(struct udphdr) + strlen(data), 0, (struct sockaddr *)&si, sizeof(si)) == -1)
+                	printf("Error sending packet.\n");
+			printf("Data Sent\n");
+		close(sockfd);
+		free_clientnet_info(cinfo);
+	}
 	//_dump_packet_headers(msg);
 }
 
@@ -139,8 +181,10 @@ int main(){
 	void *status;
 	char cmd[123];
 	
-	ifconfig("eth0");	
-	add_client_route("0.0.0.0","127.0.0.1","0.0.0.0","eth0");
+	ifconfig("eth0");
+	add_client_route("192.168.1.0","0.0.0.0", "255.255.255.0","eth0");
+	add_client_route("0.0.0.0", "192.168.1.1", "0.0.0.0", "eth0");
+	add_client_route("127.0.0.1", "0.0.0.0", "255.255.255.255", "eth0");
 
 	pthread_create(&th, NULL, listener, NULL);
 	
