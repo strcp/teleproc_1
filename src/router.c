@@ -25,10 +25,6 @@
 
 #define MAXBUFLEN 1000
 
-#if 0
-	printf("recalc: %X\n\n", (unsigned short)in_cksum((unsigned short *)ip, ip->tot_len));
-#endif
-// get sockaddr, IPv4 or IPv6:
 void *get_in_addr(struct sockaddr *sa)
 {
 	if (sa->sa_family == AF_INET) {
@@ -38,70 +34,42 @@ void *get_in_addr(struct sockaddr *sa)
 	return &(((struct sockaddr_in6*)sa)->sin6_addr);
 }
 
-void where_to_send(char* msg)
+int sanity_check(struct iphdr *ip)
 {
-	struct iphdr *ip;
-	struct udphdr *udp;
-	char *data;
-	struct in_addr aux;
 	unsigned short old_check;
-	struct route *croute;
-	struct clientnet_info *cinfo;
-	struct sockaddr_in si;
-	int sockfd;
-
-	ip = (struct iphdr *)msg;
-	udp = (struct udphdr *)(msg + sizeof(struct iphdr));
-	data = ((char *)udp + sizeof(struct udphdr));
 
 	old_check = ip->check;
 	ip->check = 0;
 	if (old_check == in_cksum((unsigned short *)ip, ip->tot_len)) {
-		printf("IP CHECK OK: %X\n", old_check);
-		ip->ttl--;
-		ip->check = in_cksum((unsigned short *)ip, ip->tot_len);
-		printf("New CRC: %X\n", ip->check);
+		ip->check = old_check;
 
-		aux.s_addr = ip->daddr;
-		printf("Enviar pacote para %s\n", inet_ntoa(aux));
-		printf("data = %s\n", data);
-
-		if (!(croute = get_route_by_daddr(aux.s_addr))) {
-			printf("Error getting route rule\n");
-			return -1;
-		}
-		if (!(cinfo = get_iface_info(croute->iface))) {
-			printf("Error getting interface.\n");
-			return -1;
-		}
-		printf("Gateway: %s\n", inet_ntoa(croute->gateway));
-
-		memset(&si, 0, sizeof(struct sockaddr_in));
-		si.sin_family = AF_INET;
-		if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) == -1){
-			printf("ERROR: creating socket\n");
-			return -1;
-		}
-
-		if (!croute->gateway.s_addr) {
-			printf("Rede Local\n");
-			si.sin_port = udp->dest;
-			si.sin_addr.s_addr = ip->daddr;
-			printf("Enviar para %s:%d\n", inet_ntoa(si.sin_addr), ntohs(si.sin_port));
-		} else {
-			printf("Rede Remota\n");
-			si.sin_port = htons(ROUTER_PORT);
-			si.sin_addr.s_addr = croute->gateway.s_addr;
-			printf("Enviar para %s:%d\n", inet_ntoa(si.sin_addr), ntohs(si.sin_port));
-		}
-
-		if (sendto(sockfd, msg, sizeof(struct iphdr) + sizeof(struct udphdr) + strlen(data), 0, (struct sockaddr *)&si, sizeof(si)) == -1)
-			printf("Error sending packet.\n");
-			printf("Data Sent\n");
-		close(sockfd);
-		free_clientnet_info(cinfo);
+		return 1;
 	}
-	//_dump_packet_headers(msg);
+	ip->check = old_check;
+
+	return 0;
+}
+
+int where_to_send(char *packet)
+{
+	struct iphdr *ip;
+	struct udphdr *udp;
+	char *data;
+
+	ip = (struct iphdr *)packet;
+	udp = (struct udphdr *)(packet + sizeof(struct iphdr));
+	data = ((char *)udp + sizeof(struct udphdr));
+
+	if (!sanity_check(ip)) {
+		printf("Packet received with error, dropping.\n");
+		return -1;
+	}
+
+	ip->check = 0;
+	ip->ttl--;
+	ip->check = in_cksum((unsigned short *)ip, ip->tot_len);
+	printf("New CRC: %X\n", ip->check);
+	return (send_data(packet));
 }
 
 void *listener()
