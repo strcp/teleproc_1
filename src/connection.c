@@ -262,6 +262,7 @@ int send_data(const void *packet)
 	int sockfd;
 	struct iphdr *ip;
 	struct udphdr *udp;
+	struct in_addr tmp;
 
 	ip = (struct iphdr *)packet;
 	udp = (struct udphdr *)((char *)packet + sizeof(struct udphdr));
@@ -275,6 +276,10 @@ int send_data(const void *packet)
 		printf("Error getting interface.\n");
 		return -1;
 	}
+	tmp.s_addr = ip->daddr;
+	printf("Destination: %s\n", inet_ntoa(tmp));
+	tmp.s_addr = ip->saddr;
+	printf("From: %s\n", inet_ntoa(tmp));
 	printf("Gateway: %s\n", inet_ntoa(croute->gateway));
 
 	memset(&si, 0, sizeof(si));
