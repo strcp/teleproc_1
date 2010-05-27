@@ -28,5 +28,6 @@ int send_udp_data(const char *daddr,
 				const unsigned short sport,
 				const void *data,
 				size_t len);
+int send_data(const void *packet);
 
 unsigned short in_cksum(unsigned short *addr, int len);

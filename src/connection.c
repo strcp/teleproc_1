@@ -254,23 +254,19 @@ void _dump_packet_headers(char *pkt)
 	printf("data: (%s)\n\n", data);
 }
 
-int send_udp_data(const char *daddr,
-				const unsigned short dport,
-				const unsigned short sport,
-				const void *data,
-				size_t len)
+int send_data(const void *packet)
 {
-	struct iphdr *ip;
-	char *packet;
-	struct udphdr *udp;
 	struct clientnet_info *cinfo;
 	struct route *croute;
 	struct sockaddr_in si;
 	int sockfd;
+	struct iphdr *ip;
+	struct udphdr *udp;
 
+	ip = (struct iphdr *)packet;
+	udp = (struct udphdr *)((char *)packet + sizeof(struct udphdr));
 
-	printf("daddr = %s\n",daddr);
-	if (!(croute = get_route_by_daddr(daddr))) {
+	if (!(croute = get_route_by_daddr(ip->daddr))) {
 		printf("Error getting route rule\n");
 		return -1;
 	}
@@ -280,14 +276,6 @@ int send_udp_data(const char *daddr,
 		return -1;
 	}
 	printf("Gateway: %s\n", inet_ntoa(croute->gateway));
-
-	packet = create_packet(len);
-	udp = get_udp_packet(packet);
-	ip = (struct iphdr *)packet;
-
-	set_udp_packet(udp, dport, sport, data, len);
-	set_ip_packet(ip, cinfo->addr.s_addr, inet_addr(daddr), len);
-	_dump_packet_headers(packet);
 
 	memset(&si, 0, sizeof(si));
 	si.sin_family = AF_INET;
@@ -299,20 +287,57 @@ int send_udp_data(const char *daddr,
 	if (!croute->gateway.s_addr) {
 		/* Quando o gateway escolhido for 0.0.0.0, o pacote deve ser enviado
 		 * para o próprio ip escolhido na porta destino. */
-		si.sin_port = htons(dport);
+		si.sin_port = htons(udp->dest);
 		si.sin_addr.s_addr =  ip->daddr;
 	} else {
 		/* Quando houver um gateway, enviar para ele na porta de roteamento. */
 		si.sin_port = htons(ROUTER_PORT);
 		si.sin_addr.s_addr =  croute->gateway.s_addr;
 	}
-	if (sendto(sockfd, packet, sizeof(struct iphdr) + sizeof(struct udphdr) + len, 0, (struct sockaddr *)&si, sizeof(si)) == -1)
+	if (sendto(sockfd, packet, ip->tot_len, 0, (struct sockaddr *)&si, sizeof(si)) == -1)
 		printf("Error sending packet.\n");
 
 	close(sockfd);
 
-	free(packet);
 	free_clientnet_info(cinfo);
 
-	return 0;
+	return ip->tot_len;
+}
+
+int send_udp_data(const char *daddr,
+				const unsigned short dport,
+				const unsigned short sport,
+				const void *data,
+				size_t len)
+{
+	struct clientnet_info *cinfo;
+	struct route *croute;
+	struct iphdr *ip;
+	char *packet;
+	struct udphdr *udp;
+	int ret;
+
+	packet = create_packet(len);
+	udp = get_udp_packet(packet);
+	ip = (struct iphdr *)packet;
+
+	if (!(croute = get_route_by_daddr(ip->daddr))) {
+		printf("Error getting route rule\n");
+		return -1;
+	}
+
+	if (!(cinfo = get_iface_info(croute->iface))) {
+		printf("Error getting interface.\n");
+		return -1;
+	}
+
+	set_udp_packet(udp, dport, sport, data, len);
+	set_ip_packet(ip, cinfo->addr.s_addr, inet_addr(daddr), len);
+	_dump_packet_headers(packet);
+	ret = send_data(packet);
+
+	free_clientnet_info(cinfo);
+	free(packet);
+
+	return ret;
 }
