@@ -20,11 +20,12 @@ int main()
 
 	/* A ordem da tabela afeta o roteamento, a prioridade é sempre da regra mais
 	 * antiga. */
-	add_client_route("192.168.6.11", "0.0.0.0", "255.255.255.255", "eth0");
-	add_client_route("0.0.0.0", "192.168.6.11", "0.0.0.0", "eth0");
+	init_default_routes();
+//	add_client_route("192.168.6.11", "0.0.0.0", "255.255.255.255", "eth0");
+//	add_client_route("0.0.0.0", "192.168.6.11", "0.0.0.0", "eth0");
 //	add_client_route("10.0.2.0", "10.0.2.5", "255.255.255.0", "eth0");
 
-	send_udp_data("192.168.6.66", 5555, 5556, "fuubar\0", 7);
+//	send_udp_data("192.168.6.66", 5555, 5556, "fuubar\0", 7);
 
 	while (1) {
 		cmd = readline(prompt);

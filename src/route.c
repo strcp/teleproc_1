@@ -23,7 +23,7 @@ int init_default_routes(void)
 	cinfo = get_ifaces_info();
 
 	for (ptr = cinfo; ptr; ptr = ptr->next) {
-		add_client_route(inet_ntoa(ptr->addr), "10.0.2.1", "0.0.0.0", "eth1");
+		add_client_route(inet_ntoa(ptr->addr), "0.0.0.0", "255.255.255.255", ptr->iface);
 	}
 
 	return 1;
