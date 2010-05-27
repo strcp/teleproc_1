@@ -11,7 +11,7 @@ void route_cmd(char *params)
 	char *net, *gw, *nm, *iface;
 
 	p1 = strtok_r(params, " ", &p2);
-	
+
 	if (!(strcmp(p1, "show"))) {
 		show_route_table();
 	} else if ((!strcmp(p1, "add")) || (!strcmp(p1, "del"))) {
@@ -36,8 +36,26 @@ void route_cmd(char *params)
 	} else if (!strcmp(p1, "flush")) {
 		cleanup_route_table();
 	} else {
-		printf("Usage: route {add|del|flush} -net <ip> gw <ip> netmask <ip> dev <devname>.\n");
+		printf("Usage: route {add|del|flush} -net <ip> gw <ip> netmask <ip> dev <devname>\n");
 	}
+}
+
+void send_cmd(char *params)
+{
+	char *p1, *p2;
+	char *daddr, *dport, *data;
+
+	p1 = strtok_r(params, " ", &p2);
+
+	if ((strcmp(p1, "-file")) || (!(data = strtok_r(p2, " ", &p2))))
+		goto send_usage;
+	if (!(daddr = strtok_r(p2, " ", &p2)))
+		goto send_usage;
+	if (!(dport = strtok_r(p2, " ", &p2)))
+		goto send_usage;
+
+send_usage:
+	printf("Usage: send -file </path/to/file> <dest_ip> <dest_port>\n");
 }
 
 void ifconfig_cmd(char *params)
@@ -61,6 +79,8 @@ void parse_cmds(char *full_cmd)
 		route_cmd(param);
 	else if (!(strcmp(cmd, "ifconfig")))
 		ifconfig_cmd(param);
+	else if (!(strcmp(cmd, "send")))
+		send_cmd(param);
 	else
 		printf("cmd unknown.\n");
 }
