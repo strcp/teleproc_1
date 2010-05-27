@@ -29,6 +29,32 @@ int init_default_routes(void)
 	return 1;
 }
 
+static struct route *find_route(const char *dest,
+					 const char *gateway,
+					 const char *genmask,
+					 char *iface)
+{
+	struct route *croute, *ptr;
+
+	croute = malloc(sizeof(struct route));
+	memset(croute, 0, sizeof(struct route));
+
+	croute->dest.s_addr = inet_addr(dest);
+	croute->genmask.s_addr = inet_addr(genmask);
+	croute->gateway.s_addr = inet_addr(gateway);
+	croute->iface = strdup(iface);
+
+	for (ptr = client_route; ptr; ptr = ptr->next) {
+		if (!memcmp(croute, ptr, sizeof(struct route))) {
+			free_route(croute);
+			return ptr;
+		}
+	}
+	free_route(croute);
+
+	return NULL;
+}
+
 struct route *add_client_route(const char *dest,
 					 const char *gateway,
 					 const char *genmask,
@@ -49,6 +75,11 @@ struct route *add_client_route(const char *dest,
 		return NULL;
 	}
 	free_clientnet_info(cinfo);
+
+	if ((croute = find_route(dest, gateway, genmask, iface))) {
+		printf("Route already exists.\n");
+		return croute;
+	}
 
 	croute = malloc(sizeof(struct route));
 	memset(croute, 0, sizeof(struct route));

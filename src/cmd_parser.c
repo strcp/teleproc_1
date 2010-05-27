@@ -10,7 +10,11 @@ void route_cmd(char *params)
 	char *p1, *p2, *tmp;
 	char *net, *gw, *nm, *iface;
 
-	p1 = strtok_r(params, " ", &p2);
+
+	if (!(p1 = strtok_r(params, " ", &p2))) {
+		show_route_table();
+		return;
+	}
 
 	if (!(strcmp(p1, "show"))) {
 		show_route_table();
@@ -36,7 +40,7 @@ void route_cmd(char *params)
 	} else if (!strcmp(p1, "flush")) {
 		cleanup_route_table();
 	} else {
-		printf("Usage: route {add|del|flush} -net <ip> gw <ip> netmask <ip> dev <devname>\n");
+		printf("Usage: route {add|del|flush|show} -net <ip> gw <ip> netmask <ip> dev <devname>\n");
 	}
 }
 
@@ -72,6 +76,7 @@ void parse_cmds(char *full_cmd)
 {
 	char *cmd, *param;
 
+	param = NULL;
 	if (!(cmd = strtok_r(full_cmd, " ", &param)))
 		return;
 
