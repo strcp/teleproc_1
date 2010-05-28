@@ -157,13 +157,10 @@ int main()
 {
 	pthread_t th;
 	void *status;
-	char *cmd;
+	char *cmd, *hist;
 	char prompt[] = "router> ";
 
 	init_default_routes();
-//	add_client_route("192.168.1.0","0.0.0.0", "255.255.255.0","eth0");
-//	add_client_route("0.0.0.0", "192.168.1.1", "0.0.0.0", "eth0");
-//	add_client_route("127.0.0.1", "0.0.0.0", "255.255.255.255", "eth0");
 
 	pthread_create(&th, NULL, listener, NULL);
 
@@ -176,9 +173,11 @@ int main()
 			cmd = readline(prompt);
 			if (!strcmp(cmd, "exit") || !strcmp(cmd, "quit"))
 				break;
+			hist = strdup(cmd);
 			parse_cmds(cmd);
-			if (cmd && *cmd)
-				add_history(cmd);
+			free(cmd);
+			if (hist && *hist)
+				add_history(hist);
 		}
 	}
 	clear_history();

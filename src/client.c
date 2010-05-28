@@ -15,7 +15,7 @@
 
 int main()
 {
-	char *cmd;
+	char *cmd, *hist;
 	char prompt[] = "client> ";
 
 	/* A ordem da tabela afeta o roteamento, a prioridade é sempre da regra mais
@@ -31,9 +31,11 @@ int main()
 		cmd = readline(prompt);
 		if (!strcmp(cmd, "exit") || !strcmp(cmd, "quit"))
 			break;
+		hist = strdup(cmd);
 		parse_cmds(cmd);
-		if (cmd && *cmd)
-			add_history(cmd);
+		free(cmd);
+		if (hist && *hist)
+			add_history(hist);
 	}
 	clear_history();
 	cleanup_route_table();
