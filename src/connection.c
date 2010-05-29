@@ -15,6 +15,7 @@
 
 #include <route.h>
 #include <connection.h>
+#include <data.h>
 
 #define ROUTER_PORT 6666
 
@@ -254,7 +255,7 @@ void _dump_packet_headers(char *pkt)
 	struct in_addr tmp;
 	struct udphdr *udp;
 	struct iphdr *ip;
-	char *data;
+	struct data_info *dinfo;
 
 	ip = (struct iphdr *)pkt;
 	printf("* IP packet dump *\n");
@@ -277,8 +278,11 @@ void _dump_packet_headers(char *pkt)
 	printf("checksum: %X\n\n", udp->check);
 
 	printf("* DATA packet dump *\n");
-	data = ((char *)udp + sizeof(struct udphdr));
-	printf("data: (%s)\n\n", data);
+	dinfo = (struct data_info *)((char *)udp + sizeof(struct udphdr));
+	if (dinfo) {
+		printf("File name: %s\n", dinfo->name);
+		printf("File size: %d\n", dinfo->size);
+	}
 }
 
 int send_data(const void *packet)
