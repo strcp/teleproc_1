@@ -12,3 +12,6 @@ struct clientnet_info
 	struct in_addr bcastaddr;
 	struct clientnet_info *next;
 };
+
+/* Porta aonde o cliente ira receber dados, src_port na hora do envio */
+unsigned int client_port;
