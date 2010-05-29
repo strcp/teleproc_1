@@ -264,7 +264,7 @@ void _dump_packet_headers(char *pkt)
 	tmp.s_addr = ip->daddr;
 	printf("ip daddr: %s\n", inet_ntoa(tmp));
 	printf("ip ver: %d\n", ip->version);
-	printf("packet total length: %d\n", ip->tot_len);
+	printf("packet total length: %d bytes\n", ip->tot_len);
 	printf("packet id: %d\n", ip->id);
 	printf("packet ttl: %d\n", ip->ttl);
 	printf("ip using proto: %d\n", ip->protocol);
@@ -274,14 +274,14 @@ void _dump_packet_headers(char *pkt)
 	udp = (struct udphdr *)(pkt + sizeof(struct iphdr));
 	printf("dest port: %d\n", ntohs(udp->dest));
 	printf("src port: %d\n", ntohs(udp->source));
-	printf("length: %d\n", ntohs(udp->len));
+	printf("length: %d bytes\n", ntohs(udp->len));
 	printf("checksum: %X\n\n", udp->check);
 
 	printf("* DATA packet dump *\n");
 	dinfo = (struct data_info *)((char *)udp + sizeof(struct udphdr));
 	if (dinfo) {
 		printf("File name: %s\n", dinfo->name);
-		printf("File size: %d\n", dinfo->size);
+		printf("File size: %d bytes\n", dinfo->size);
 	}
 }
 
