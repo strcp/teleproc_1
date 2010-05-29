@@ -5,4 +5,5 @@
 
 ROUTER:
 	Log das mensagens RECEBIDAS e ENVIADAS(Repassadas)
-	Adicionar rotas pela linha de comando
+	Encerrar a thread quando exit ou quit são chamados.
+
