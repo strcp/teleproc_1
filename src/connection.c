@@ -358,7 +358,7 @@ int send_udp_data(const char *daddr,
 	udp = get_udp_packet(packet);
 	ip = (struct iphdr *)packet;
 
-	if (!(croute = get_route_by_daddr(ip->daddr))) {
+	if (!(croute = get_route_by_daddr(inet_addr(daddr)))) {
 		printf("Error getting route rule\n");
 		return -1;
 	}
