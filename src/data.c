@@ -27,14 +27,19 @@ struct data_info *load_data(char *file_path)
 	}
 	len = file_size(fp);
 	dinfo = malloc(sizeof(struct data_info));
-	/* TODO: Parsear o nome */
-	dinfo->name = strdup(file_path);
+	dinfo->name = strrchr(file_path, '/');
+	dinfo->name = strdup(++(dinfo->name));
 	dinfo->data = malloc(len);
 	dinfo->size = len;
 	fread(dinfo->data, len, 1, fp);
 	fclose(fp);
 
 	return dinfo;
+}
+
+int save_data(struct data_info *data)
+{
+	return 1;
 }
 
 void free_data_info(struct data_info *dinfo)
