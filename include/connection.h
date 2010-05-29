@@ -8,6 +8,15 @@
 
 #include <client.h>
 
+struct connection_stats
+{
+	unsigned int sent_pkts;
+	unsigned int recv_pkts;
+	unsigned int lost_pkts;
+	unsigned int fw_pkts;
+};
+
+struct connection_stats cstats;
 
 void free_clientnet_info(struct clientnet_info *cinfo);
 struct clientnet_info *get_ifaces_info(void);
@@ -31,3 +40,8 @@ int send_udp_data(const char *daddr,
 int send_data(const void *packet);
 
 unsigned short in_cksum(unsigned short *addr, int len);
+
+void enable_error(void);
+void disable_error(void);
+void dump_statistics(void);
+

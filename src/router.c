@@ -66,13 +66,17 @@ int where_to_send(char *packet)
 
 	if (!sanity_check(ip)) {
 		printf("Packet received with error, dropping.\n");
+		cstats.lost_pkts++;
 		return -1;
 	}
 
 	ip->check = 0;
+	/* Router esta fazendo forward do pacote, subtrai ttl */
 	ip->ttl--;
 	ip->check = in_cksum((unsigned short *)ip, ip->tot_len);
 	printf("New CRC: %X\n", ip->check);
+	cstats.fw_pkts += ip->tot_len;
+
 	return (send_data(packet));
 }
 
@@ -83,16 +87,13 @@ void *listener()
 	int rv;
 	int numbytes;
 	struct sockaddr_storage their_addr;
-	//char buf[MAXBUFLEN];
 	size_t addr_len;
-	//char s[INET6_ADDRSTRLEN];
 	char *buf;
 
 	memset(&hints, 0, sizeof hints);
-	hints.ai_family = AF_UNSPEC; // set to AF_INET to force IPv4
+	hints.ai_family = AF_UNSPEC;
 	hints.ai_socktype = SOCK_DGRAM;
-	hints.ai_flags = AI_PASSIVE; // use my IP
-
+	hints.ai_flags = AI_PASSIVE;
 
 	if ((rv = getaddrinfo(NULL, MYPORT, &hints, &servinfo)) != 0) {
 		fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
@@ -101,8 +102,7 @@ void *listener()
 
 	// loop through all the results and bind to the first we can
 	for (p = servinfo; p != NULL; p = p->ai_next) {
-		if ((sockfd = socket(p->ai_family, p->ai_socktype,
-				p->ai_protocol)) == -1) {
+		if ((sockfd = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) == -1) {
 			perror("listener: socket");
 			continue;
 		}
@@ -123,7 +123,7 @@ void *listener()
 	freeaddrinfo(servinfo);
 
 	while (1) {
-		printf("listener: waiting to recvfrom...\n");
+		printf("Router awaiting packages.\n");
 
 		addr_len = sizeof their_addr;
 
@@ -137,14 +137,6 @@ void *listener()
 		}
 
 		where_to_send(buf);
-		/*printf("listener: got packet from %s\n",
-				inet_ntop(their_addr.ss_family,
-					get_in_addr((struct sockaddr *)&their_addr),
-					s,
-					sizeof(s)));
-
-		printf("listener: packet is %d bytes long\n", numbytes);
-		_dump_packet_headers(buf);*/
 		sleep(1);
 	}
 	close(sockfd);

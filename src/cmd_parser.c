@@ -72,6 +72,7 @@ void ifconfig_cmd(char *params)
 		ifconfig(NULL);
 	}
 }
+
 void parse_cmds(char *full_cmd)
 {
 	char *cmd, *param;
@@ -86,6 +87,8 @@ void parse_cmds(char *full_cmd)
 		ifconfig_cmd(param);
 	else if (!(strcmp(cmd, "send")))
 		send_cmd(param);
+	else if (!(strcmp(cmd, "stats")))
+		dump_statistics();
 	else
 		printf("cmd unknown.\n");
 }

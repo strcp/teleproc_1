@@ -30,6 +30,16 @@ void disable_error(void)
 	error_enable = 0;
 }
 
+void dump_statistics(void)
+{
+	printf("Connection Statistics:\n");
+	printf("Sent packages: %d bytes\n", cstats.sent_pkts);
+	printf("Recived packages: %d bytes\n", cstats.recv_pkts);
+	printf("Lost packages: %d\n", cstats.lost_pkts);
+	if (cstats.fw_pkts)
+		printf("Forwarded packages: %d bytes\n", cstats.fw_pkts);
+}
+
 unsigned short in_cksum(unsigned short *addr, int len)
 {
 	int nleft = len;
@@ -318,6 +328,8 @@ int send_data(const void *packet)
 	}
 	if (sendto(sockfd, packet, ip->tot_len, 0, (struct sockaddr *)&si, sizeof(si)) == -1)
 		printf("Error sending packet.\n");
+	else
+		cstats.sent_pkts += ip->tot_len;
 
 	close(sockfd);
 
