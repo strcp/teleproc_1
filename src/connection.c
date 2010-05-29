@@ -199,7 +199,7 @@ struct iphdr *set_ip_packet(struct iphdr *ip, const in_addr_t saddr, const in_ad
 	ip->tot_len = sizeof(struct iphdr) + sizeof(struct udphdr) + len;
 	ip->id = htons(666);
 	ip->ttl = 64;
-	ip->protocol = IPPROTO_TCP;
+	ip->protocol = IPPROTO_UDP;
 	ip->saddr = saddr;
 	ip->daddr = daddr;
 	ip->check = 0;
