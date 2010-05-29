@@ -36,6 +36,18 @@ struct data_info *load_data(char *file_path)
 	return dinfo;
 }
 
+void free_data_info(struct data_info *dinfo)
+{
+	if (!dinfo)
+		return;
+	if (dinfo->name)
+		free(dinfo->name);
+	if (dinfo->data)
+		free(dinfo->data);
+
+	free(dinfo);
+}
+
 void dump_data(struct data_info *dinfo)
 {
 	printf("Dump data info\n");
