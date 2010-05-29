@@ -30,6 +30,7 @@ struct data_info *load_data(char *file_path)
 	/* TODO: Parsear o nome */
 	dinfo->name = strdup(file_path);
 	dinfo->data = malloc(len);
+	dinfo->size = len;
 	fread(dinfo->data, len, 1, fp);
 	fclose(fp);
 
