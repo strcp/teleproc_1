@@ -23,11 +23,12 @@
 #include <route.h>
 #include <connection.h>
 #include <cmd_parser.h>
+#include <data.h>
 
 #define MYPORT "6666"	// the port users will be connecting to
 #define ROUTER_PORT 6666
 
-#define MAXSIZE 1000
+#define MAXSIZE 100000
 
 void *get_in_addr(struct sockaddr *sa)
 {
@@ -44,6 +45,7 @@ int sanity_check(struct iphdr *ip)
 
 	old_check = ip->check;
 	ip->check = 0;
+
 	if (old_check == in_cksum((unsigned short *)ip, ip->tot_len)) {
 		ip->check = old_check;
 
@@ -58,21 +60,23 @@ int where_to_send(char *packet)
 {
 	struct iphdr *ip;
 	struct udphdr *udp;
-	char *data;
+	struct data_info *data;
 
 	ip = (struct iphdr *)packet;
 	udp = (struct udphdr *)(packet + sizeof(struct iphdr));
-	data = ((char *)udp + sizeof(struct udphdr));
+	data = (struct data_info *)((char *)udp + sizeof(struct udphdr));
 
+
+	//_dump_packet_headers(packet);
 	if (!sanity_check(ip)) {
 		printf("Packet received with error, dropping.\n");
 		cstats.lost_pkts++;
 		return -1;
 	}
 
-	ip->check = 0;
 	/* Router esta fazendo forward do pacote, subtrai ttl */
 	ip->ttl--;
+	ip->check = 0;
 	ip->check = in_cksum((unsigned short *)ip, ip->tot_len);
 	printf("New CRC: %X\n", ip->check);
 	cstats.fw_pkts += ip->tot_len;

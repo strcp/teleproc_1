@@ -27,8 +27,10 @@ struct data_info *load_data(char *file_path)
 	}
 	len = file_size(fp);
 	dinfo = malloc(sizeof(struct data_info));
-	dinfo->name = strrchr(file_path, '/');
-	dinfo->name = strdup(++(dinfo->name));
+	if ((dinfo->name = strrchr(file_path, '/')))
+		dinfo->name = strdup(++(dinfo->name));
+	else
+		dinfo->name = strdup(file_path);
 	dinfo->data = malloc(len);
 	dinfo->size = len;
 	fread(dinfo->data, len, 1, fp);

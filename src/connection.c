@@ -197,13 +197,13 @@ struct udphdr *set_udp_packet(struct udphdr *udp,
 							const void *data,
 							size_t len)
 {
-	char *data_ptr;
+	struct data_info *data_ptr;
 
 	udp->source = htons(src);
 	udp->dest = htons(dest);
 	udp->len = htons(sizeof(struct udphdr) + len);
 
-	data_ptr = ((char *)udp + sizeof(struct udphdr));
+	data_ptr = (struct data_info *)((char *)udp + sizeof(struct udphdr));
 	memcpy(data_ptr, data, len);
 
 	return udp;
