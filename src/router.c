@@ -27,7 +27,7 @@
 #define MYPORT "6666"	// the port users will be connecting to
 #define ROUTER_PORT 6666
 
-#define MAXBUFLEN 1000
+#define MAXSIZE 1000
 
 void *get_in_addr(struct sockaddr *sa)
 {
@@ -83,66 +83,45 @@ int where_to_send(char *packet)
 void *listener()
 {
 	int sockfd;
-	struct addrinfo hints, *servinfo, *p;
-	int rv;
-	int numbytes;
-	struct sockaddr_storage their_addr;
+	struct sockaddr_in router, client;
 	size_t addr_len;
 	char *buf;
 
-	memset(&hints, 0, sizeof hints);
-	hints.ai_family = AF_UNSPEC;
-	hints.ai_socktype = SOCK_DGRAM;
-	hints.ai_flags = AI_PASSIVE;
-
-	if ((rv = getaddrinfo(NULL, MYPORT, &hints, &servinfo)) != 0) {
-		fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
-		pthread_exit((void*)1);
+	if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
+		perror("socket");
+		pthread_exit((void *)EXIT_FAILURE);
 	}
 
-	// loop through all the results and bind to the first we can
-	for (p = servinfo; p != NULL; p = p->ai_next) {
-		if ((sockfd = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) == -1) {
-			perror("listener: socket");
-			continue;
-		}
+	router.sin_family = AF_INET;
+	router.sin_addr.s_addr = htonl(INADDR_ANY);
+	router.sin_port = htons(ROUTER_PORT);
 
-		if (bind(sockfd, p->ai_addr, p->ai_addrlen) == -1) {
-			close(sockfd);
-			perror("listener: bind");
-			continue;
-		}
-
-		break;
+	if ((bind (sockfd, (struct sockaddr *)&router, sizeof(struct sockaddr_in))) < 0) {
+		perror("bind");
+		close(sockfd);
+		pthread_exit((void *)EXIT_FAILURE);
 	}
-
-	if (p == NULL) {
-		fprintf(stderr, "listener: failed to bind socket\n");
-		pthread_exit((void *)2);
-	}
-	freeaddrinfo(servinfo);
 
 	while (1) {
-		printf("Router awaiting packages.\n");
+		printf("Router awaiting for packages.\n");
 
-		addr_len = sizeof their_addr;
+		addr_len = sizeof(struct sockaddr_in);
 
-		buf = malloc(MAXBUFLEN);
-		memset(buf, 0, MAXBUFLEN);
+		buf = malloc(MAXSIZE);
+		memset(buf, 0, MAXSIZE);
 
-		if ((numbytes = recvfrom(sockfd, buf, MAXBUFLEN-1 , 0,
-						(struct sockaddr *)&their_addr, &addr_len)) == -1) {
+		if ((recvfrom(sockfd, buf, MAXSIZE - 1 , 0, (struct sockaddr *)&client, &addr_len)) == -1) {
 			perror("recvfrom");
-			exit(1);
+			pthread_exit((void *)EXIT_FAILURE);
 		}
 
 		where_to_send(buf);
-		sleep(1);
+		sleep(1);	/* FIXME: Do we need this? */
 	}
 	close(sockfd);
 	free(buf);
 
-	pthread_exit((void*) 0);
+	pthread_exit((void*)EXIT_SUCCESS);
 }
 
 int main()
