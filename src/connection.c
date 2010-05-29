@@ -18,6 +18,18 @@
 
 #define ROUTER_PORT 6666
 
+static int error_enable = 0;
+
+void enable_error(void)
+{
+	error_enable = 1;
+}
+
+void disable_error(void)
+{
+	error_enable = 0;
+}
+
 unsigned short in_cksum(unsigned short *addr, int len)
 {
 	int nleft = len;
@@ -204,6 +216,11 @@ struct iphdr *set_ip_packet(struct iphdr *ip, const in_addr_t saddr, const in_ad
 	ip->daddr = daddr;
 	ip->check = 0;
 	ip->check = (unsigned short)in_cksum((unsigned short *)ip, ip->tot_len);
+	/* Se envio de erro está habilitado, modificamos o CRC */
+	if (error_enable) {
+		if (random() % 2)
+			ip->check = ip->check + 1;
+	}
 
 	return ip;
 }
