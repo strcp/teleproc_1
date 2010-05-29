@@ -33,6 +33,9 @@ static struct route *find_route(const char *dest)
 {
 	struct route *ptr;
 
+	if (!dest)
+		return NULL;
+
 	for (ptr = client_route; ptr; ptr = ptr->next) {
 		if (!(ptr->dest.s_addr ^ (inet_addr(dest)))) {
 			return ptr;
@@ -75,6 +78,8 @@ struct route *add_client_route(const char *dest,
 	croute->genmask.s_addr = inet_addr(genmask);
 	croute->gateway.s_addr = inet_addr(gateway);
 	croute->iface = strdup(iface);
+	croute->next = NULL;
+	croute->prev = NULL;
 
 	if (!client_route) {
 		client_route = croute;
@@ -86,37 +91,41 @@ struct route *add_client_route(const char *dest,
 		tmp = ptr;
 
 	tmp->next = croute;
+	croute->prev = tmp;
 
 	return croute;
 }
 
-int del_client_route(const char *dest,
-					 const char *gateway,
-					 const char *genmask,
-					 char *iface)
+int del_client_route(const char *dest)
 {
-	struct route *ptr, *gf;
+	struct route *ptr;
 
-	if (!iface) {
+	if (!dest) {
 		printf("Error removing route.\n");
-
-		return -1;
+		return 0;
 	}
 
-
-	for (ptr = client_route; ptr; gf = ptr, ptr = ptr->next) {
-		if ((ptr->dest.s_addr == inet_addr(dest)) &&
-			(ptr->genmask.s_addr == inet_addr(genmask)) &&
-			(ptr->gateway.s_addr == inet_addr(gateway)) &&
-			(!strcmp(ptr->iface, iface))) {
-			if(ptr == client_route)		//Se o nodo for o primeiro
+	if ((ptr = find_route(dest))) {
+		if (ptr == client_route) {		// Se o nodo for o primeiro
+			if (ptr->next) {
 				client_route = ptr->next;
-			else
-				gf->next = ptr->next;
-			free_route(ptr);
+				client_route->prev = NULL;
+			} else {
+				client_route = NULL;
+			}
+		} else {
+			if (ptr->next) {
+				ptr->prev->next = ptr->next;
+				ptr->next->prev = ptr->prev;
+			} else {
+				ptr->prev->next = NULL;
+			}
 		}
-	}
+		free_route(ptr);
 
+		return 1;
+	}
+	printf("Route dosen't exists.\n");
 	return 0;
 }
 
@@ -158,6 +167,7 @@ void free_route(struct route *cr)
 	if (cr->iface)
 		free(cr->iface);
 	cr->next = NULL;
+	cr->prev = NULL;
 	free(cr);
 }
 

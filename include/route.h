@@ -12,16 +12,14 @@ struct route
 	struct in_addr gateway;
 	char *iface;
 	struct route *next;
+	struct route *prev;
 };
 
 struct route *add_client_route(const char *dest,
 								const char *gateway,
 								const char *genmask,
 								char *iface);
-int del_client_route(const char *dest,
-					 const char *genmask,
-					 const char *gateway,
-					 char *iface);
+int del_client_route(const char *dest);
 struct route *get_route_by_daddr(const in_addr_t daddr);
 
 void free_route(struct route *cr);
