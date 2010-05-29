@@ -49,7 +49,8 @@ void send_cmd(char *params)
 	char *p1, *p2;
 	char *daddr, *dport, *data;
 
-	p1 = strtok_r(params, " ", &p2);
+	if (!(p1 = strtok_r(params, " ", &p2)))
+		goto send_usage;
 
 	if ((strcmp(p1, "-file")) || (!(data = strtok_r(p2, " ", &p2))))
 		goto send_usage;
