@@ -19,7 +19,18 @@ void route_cmd(char *params)
 
 	if (!(strcmp(p1, "show"))) {
 		show_route_table();
-	} else if ((!strcmp(p1, "add")) || (!strcmp(p1, "del"))) {
+		return;
+	} else if (!strcmp(p1, "del")) {
+		while ((tmp = strtok_r(p2, " ", &p2))) {
+			if (!strcmp(tmp, "-net")) {
+				net = strtok_r(p2, " ", &p2);
+			} else {
+				goto route_usage;
+			}
+		}
+		del_client_route(net);
+		return;
+	} else if ((!strcmp(p1, "add"))) {
 		while ((tmp = strtok_r(p2, " ", &p2))) {
 			if (!strcmp(tmp, "-net")) {
 				net = strtok_r(p2, " ", &p2);
@@ -30,19 +41,19 @@ void route_cmd(char *params)
 			} else if (!strcmp(tmp, "dev")) {
 				iface = strtok_r(p2, " ", &p2);
 			} else {
-				printf("Error runing route, wrong parameters.\n");
+				goto route_usage;
 				break;
 			}
 		}
-		if (!strcmp(p1, "add"))
-			add_client_route(net, gw, nm, iface);
-		else
-			del_client_route(net, gw, nm, iface);
+		add_client_route(net, gw, nm, iface);
+		return;
 	} else if (!strcmp(p1, "flush")) {
 		cleanup_route_table();
-	} else {
-		printf("Usage: route {add|del|flush|show} -net <ip> gw <ip> netmask <ip> dev <devname>\n");
+		return;
 	}
+
+route_usage:
+	printf("Usage: route {add|del|flush|show} -net <ip> gw <ip> netmask <ip> dev <devname>\n");
 }
 
 void send_cmd(char *params)
