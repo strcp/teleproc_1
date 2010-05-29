@@ -34,7 +34,6 @@ int init_network(void);
 void _dump_packet_headers(char *pkt);
 int send_udp_data(const char *daddr,
 				const unsigned short dport,
-				const unsigned short sport,
 				const void *data,
 				size_t len);
 int send_data(const void *packet);

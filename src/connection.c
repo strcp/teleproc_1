@@ -344,7 +344,6 @@ int send_data(const void *packet)
 
 int send_udp_data(const char *daddr,
 				const unsigned short dport,
-				const unsigned short sport,
 				const void *data,
 				size_t len)
 {
@@ -369,7 +368,7 @@ int send_udp_data(const char *daddr,
 		return -1;
 	}
 
-	set_udp_packet(udp, dport, sport, data, len);
+	set_udp_packet(udp, dport, client_port, data, len);
 	set_ip_packet(ip, cinfo->addr.s_addr, inet_addr(daddr), len);
 	_dump_packet_headers(packet);
 	ret = send_data(packet);
