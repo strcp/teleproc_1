@@ -42,14 +42,14 @@ struct data_info *load_data(char *file_path)
 int save_data(struct data_info *data)
 {
 	FILE *fp;
-	
-	if(!(fp = fopen(data->name, "wb"))){
+
+	if (!(fp = fopen(data->name, "wb"))) {
 		printf("Error opening %s\n", data->name);
 		return -1;
 	}
-	if(!fwrite(data->data, data->size, 1, fp)){
+	if (!fwrite(data->data, data->size, 1, fp)) {
 		printf("Error writing file %s\n", data->name);
-		return -1;	
+		return -1;
 	}
 	//TODO: Definir esse retorno, talvez retornar o retorno de fwrite()
 	return 0;
