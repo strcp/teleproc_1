@@ -4,6 +4,7 @@
 
 #include <route.h>
 #include <connection.h>
+#include <data.h>
 
 void route_cmd(char *params)
 {
@@ -48,6 +49,7 @@ void send_cmd(char *params)
 {
 	char *p1, *p2;
 	char *daddr, *dport, *data;
+	struct data_info *dinfo;
 
 	if (!(p1 = strtok_r(params, " ", &p2)))
 		goto send_usage;
@@ -58,6 +60,15 @@ void send_cmd(char *params)
 		goto send_usage;
 	if (!(dport = strtok_r(p2, " ", &p2)))
 		goto send_usage;
+
+	if (!(dinfo = load_data(data))) {
+		printf("Error to load file.\n");
+		return;
+	}
+	send_udp_data(daddr, atoi(dport), dinfo, dinfo->size);
+	free_data_info(dinfo);
+
+	return;
 
 send_usage:
 	printf("Usage: send -file </path/to/file> <dest_ip> <dest_port>\n");
