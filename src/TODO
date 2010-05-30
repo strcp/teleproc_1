@@ -1,7 +1,9 @@
+BOTH:
+	- Verificar se os endereços IP são validos ao adicionar rotas.
 CLIENT:
+	- Adicionar o dado ao pacote que será enviado pela rede.
 	- Abrir socket e aguardar por dados para receber.
 	- Receber pacotes, fazer o dump dos headers e salvar o arquivo.
-	- Verificar se os endereços IP são validos ao adicionar rotas.
 
 ROUTER:
 	- Log das mensagens RECEBIDAS e ENVIADAS(Repassadas)
