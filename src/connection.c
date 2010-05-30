@@ -209,7 +209,7 @@ struct udphdr *set_udp_packet(struct udphdr *udp,
 	data_ptr = (struct data_info *)((char *)udp + sizeof(struct udphdr));
 	data_ptr->size = (long int)((struct data_info *)data)->size;
 	snprintf(data_ptr->name, 255, (char *)((struct data_info *)data)->name);
-	//memcpy((char *)data_ptr->data, (char *)((struct data_info *)data)->data, len);
+	memcpy((char *)data_ptr + sizeof(long int) + 255, (char *)((struct data_info *)data)->data, data_ptr->size);
 
 	return udp;
 }
