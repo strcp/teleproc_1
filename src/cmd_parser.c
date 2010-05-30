@@ -76,7 +76,8 @@ void send_cmd(char *params)
 		printf("Error to load file.\n");
 		return;
 	}
-	send_udp_data(daddr, atoi(dport), dinfo, dinfo->size);
+	dump_data(dinfo);
+	send_udp_data(daddr, atoi(dport), dinfo,  dinfo->size + sizeof(struct data_info));
 	free_data_info(dinfo);
 
 	return;

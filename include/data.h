@@ -2,8 +2,8 @@
 
 struct data_info
 {
-	char *name;
-	size_t size;
+	long int size;
+	char name[255];
 	void *data;
 };
 

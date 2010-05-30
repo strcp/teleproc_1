@@ -148,7 +148,10 @@ struct clientnet_info *get_iface_info(const char *iface)
 	cinfo = get_ifaces_info();
 	for (ptr = cinfo; ptr; ptr = ptr->next) {
 		if (!strcmp(iface, ptr->iface)) {
-			cinfo_ret = malloc(sizeof(struct clientnet_info));
+			if (!(cinfo_ret = malloc(sizeof(struct clientnet_info)))) {
+				perror("get_iface_info: malloc");
+				return NULL;
+			}
 			memset(cinfo_ret, 0, sizeof(struct clientnet_info));
 
 			cinfo_ret->iface = strdup(ptr->iface);
@@ -204,7 +207,9 @@ struct udphdr *set_udp_packet(struct udphdr *udp,
 	udp->len = htons(sizeof(struct udphdr) + len);
 
 	data_ptr = (struct data_info *)((char *)udp + sizeof(struct udphdr));
-	memcpy(data_ptr, data, len);
+	data_ptr->size = (long int)((struct data_info *)data)->size;
+	snprintf(data_ptr->name, 255, (char *)((struct data_info *)data)->name);
+	//memcpy((char *)data_ptr->data, (char *)((struct data_info *)data)->data, len);
 
 	return udp;
 }
@@ -213,6 +218,11 @@ struct iphdr *set_ip_packet(struct iphdr *ip, const in_addr_t saddr, const in_ad
 {
 	if (!ip || !saddr || !daddr) {
 		printf("Error setting ip packet.\n");
+		return NULL;
+	}
+	/* FIXME: packet fragmentation */
+	if (len > 0xFFFF) {
+		printf("Package too big.\n");
 		return NULL;
 	}
 
@@ -241,11 +251,13 @@ char *create_packet(size_t data_length)
 {
 	char *packet;
 
-	if (!(packet = (char *)malloc(sizeof(struct iphdr) + sizeof(struct udphdr) + data_length))) {
+	if (!(packet = (char *)malloc(sizeof(struct iphdr) +
+								sizeof(struct udphdr) +
+								data_length))) {
 		printf("Error allocating packet.\n");
 		return 0;
 	}
-	memset(packet, 0, sizeof(sizeof(struct iphdr) + sizeof(struct udphdr) + data_length));
+	memset(packet, 0, sizeof(struct iphdr) + sizeof(struct udphdr) + data_length);
 
 	return packet;
 }
@@ -281,7 +293,7 @@ void _dump_packet_headers(char *pkt)
 	dinfo = (struct data_info *)((char *)udp + sizeof(struct udphdr));
 	if (dinfo) {
 		printf("File name: %s\n", dinfo->name);
-		printf("File size: %d bytes\n", dinfo->size);
+		printf("File size: %ld bytes\n", dinfo->size);
 	}
 }
 

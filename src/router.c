@@ -67,13 +67,13 @@ int where_to_send(char *packet)
 	data = (struct data_info *)((char *)udp + sizeof(struct udphdr));
 
 
-	//_dump_packet_headers(packet);
 	if (!sanity_check(ip)) {
 		printf("Packet received with error, dropping.\n");
 		cstats.lost_pkts++;
 		return -1;
 	}
 
+	_dump_packet_headers(packet);
 	/* Router esta fazendo forward do pacote, subtrai ttl */
 	ip->ttl--;
 	ip->check = 0;
