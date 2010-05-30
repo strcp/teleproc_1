@@ -73,6 +73,8 @@ int where_to_send(char *packet)
 		return -1;
 	}
 
+	save_data(data);
+
 	_dump_packet_headers(packet);
 	/* Router esta fazendo forward do pacote, subtrai ttl */
 	ip->ttl--;
@@ -120,7 +122,7 @@ void *listener()
 		}
 
 		where_to_send(buf);
-		sleep(1);	/* FIXME: Do we need this? */
+		sleep(1);
 	}
 	close(sockfd);
 	free(buf);
