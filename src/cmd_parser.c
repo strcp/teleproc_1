@@ -86,6 +86,27 @@ send_usage:
 	printf("Usage: send -file </path/to/file> <dest_ip> <dest_port>\n");
 }
 
+void error_cmd(char *params)
+{
+	char *p1, *p2;
+
+	if (!(p1 = strtok_r(params, " ", &p2)))
+		goto send_usage;
+
+	if (!(strcmp(p1, "enable"))) {
+		printf("Random error enabled.\n");
+		enable_error();
+		return;
+	} else if (!(strcmp(p1, "disable"))) {
+		printf("Random error disabled.\n");
+		disable_error();
+		return;
+	}
+
+send_usage:
+	printf("Usage: error {enable|disable}\n");
+}
+
 void ifconfig_cmd(char *params)
 {
 	char *p1, *p2;
@@ -113,6 +134,8 @@ void parse_cmds(char *full_cmd)
 		send_cmd(param);
 	else if (!(strcmp(cmd, "stats")))
 		dump_statistics();
+	else if (!(strcmp(cmd, "error")))
+		error_cmd(param);
 	else
 		printf("cmd unknown.\n");
 }

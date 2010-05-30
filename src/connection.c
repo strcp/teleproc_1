@@ -34,11 +34,11 @@ void disable_error(void)
 void dump_statistics(void)
 {
 	printf("Connection Statistics:\n");
-	printf("Sent packages: %d bytes\n", cstats.sent_pkts);
-	printf("Recived packages: %d bytes\n", cstats.recv_pkts);
+	printf("Sent data: %d bytes\n", cstats.sent_pkts);
+	printf("Recived data: %d bytes\n", cstats.recv_pkts);
 	printf("Lost packages: %d\n", cstats.lost_pkts);
 	if (cstats.fw_pkts)
-		printf("Forwarded packages: %d bytes\n", cstats.fw_pkts);
+		printf("Forwarded data: %d bytes\n", cstats.fw_pkts);
 }
 
 unsigned short in_cksum(unsigned short *addr, int len)
