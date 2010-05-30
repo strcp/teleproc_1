@@ -72,7 +72,8 @@ int where_to_send(char *packet)
 		cstats.lost_pkts++;
 		return -1;
 	}
-
+	/* FIXME: Esse save_data é para finalidade de teste de transmissão de pacote
+	 * e deve ser removido. */
 	save_data(data);
 
 	_dump_packet_headers(packet);
