@@ -3,6 +3,8 @@
 #include <string.h>
 #include <unistd.h>
 
+#include <pthread.h>
+
 #include <readline/readline.h>
 #include <readline/history.h>
 
@@ -13,9 +15,12 @@
 #include <route.h>
 #include <connection.h>
 #include <cmd_parser.h>
+#include <listener.h>
 
 int main (int argc, char **argv)
 {
+	pthread_t th;
+	void *status;
 	char *cmd, *hist;
 	char prompt[] = "client> ";
 	int opt, opts = 0;
@@ -44,23 +49,26 @@ int main (int argc, char **argv)
 	/* A ordem da tabela afeta o roteamento, a prioridade é sempre da regra mais
 	 * antiga. */
 	init_default_routes();
-//	add_client_route("192.168.6.11", "0.0.0.0", "255.255.255.255", "eth0");
-//	add_client_route("0.0.0.0", "192.168.6.11", "0.0.0.0", "eth0");
-//	add_client_route("10.0.2.0", "10.0.2.5", "255.255.255.0", "eth0");
 
-//	send_udp_data("192.168.6.66", 5555, 5556, "fuubar\0", 7);
 
-	while (1) {
-		cmd = readline(prompt);
-		if (!strcmp(cmd, "exit") || !strcmp(cmd, "quit"))
-			break;
-		hist = strdup(cmd);
-		parse_cmds(cmd);
-		free(cmd);
-		if (hist && *hist)
-			add_history(hist);
+	pthread_create(&th, NULL, listener, (void *)CLIENT_USAGE);
+
+	if (fork()) {
+		pthread_join(th, &status);
+		printf("Show Statistics\n");
+	} else {
+		while (1) {
+			cmd = readline(prompt);
+			if (!strcmp(cmd, "exit") || !strcmp(cmd, "quit"))
+				break;
+			hist = strdup(cmd);
+			parse_cmds(cmd);
+			free(cmd);
+			if (hist && *hist)
+				add_history(hist);
+		}
+		clear_history();
 	}
-	clear_history();
 	cleanup_route_table();
 
 	return 0;
