@@ -1,10 +1,9 @@
 BOTH:
 	- Verificar se os endereços IP são validos ao adicionar rotas.
-	- Verificar se os dado do pacote estão sendo enviados corretamente.
+	- Fechar as threads quando exit ou quit forem chamados.
+	- Fragmentação de pacote.
 CLIENT:
-	- Abrir socket e aguardar por dados para receber.
-	- Receber pacotes, fazer o dump dos headers e salvar o arquivo.
-
+	- Salvar os pacotes
 ROUTER:
 	- Log das mensagens RECEBIDAS e ENVIADAS(Repassadas)
 	- Encerrar a thread quando exit ou quit são chamados.

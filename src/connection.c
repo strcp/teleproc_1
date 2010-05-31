@@ -209,16 +209,16 @@ struct data_info *get_packet_data(char *packet)
 }
 
 struct udphdr *set_udp_packet(struct udphdr *udp,
-							unsigned short src,
 							unsigned short dest,
+							unsigned short src,
 							const void *data,
 							size_t len)
 {
 	struct data_info *data_ptr;
 
-	udp->source = htons(src);
-	udp->dest = htons(dest);
-	udp->len = htons(sizeof(struct udphdr) + len);
+	udp->source = src;
+	udp->dest = dest;
+	udp->len = sizeof(struct udphdr) + len;
 
 	data_ptr = (struct data_info *)((char *)udp + sizeof(struct udphdr));
 	data_ptr->size = (long int)((struct data_info *)data)->size;
@@ -324,7 +324,7 @@ int send_data(const void *packet)
 	struct in_addr tmp;
 
 	ip = (struct iphdr *)packet;
-	udp = (struct udphdr *)((char *)packet + sizeof(struct udphdr));
+	udp = get_udp_packet((char *)packet);
 
 	if (!(croute = get_route_by_daddr(ip->daddr))) {
 		printf("Error getting route rule\n");
@@ -352,11 +352,11 @@ int send_data(const void *packet)
 		/* Quando o gateway escolhido for 0.0.0.0, o pacote deve ser enviado
 		 * para o próprio ip escolhido na porta destino. */
 		si.sin_port = htons(udp->dest);
-		si.sin_addr.s_addr =  ip->daddr;
+		si.sin_addr.s_addr = ip->daddr;
 	} else {
 		/* Quando houver um gateway, enviar para ele na porta de roteamento. */
 		si.sin_port = htons(ROUTER_PORT);
-		si.sin_addr.s_addr =  croute->gateway.s_addr;
+		si.sin_addr.s_addr = croute->gateway.s_addr;
 	}
 	if (sendto(sockfd, packet, ip->tot_len, 0, (struct sockaddr *)&si, sizeof(si)) == -1)
 		printf("Error sending packet.\n");
