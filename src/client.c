@@ -4,6 +4,7 @@
 #include <unistd.h>
 
 #include <pthread.h>
+#include <signal.h>
 
 #include <readline/readline.h>
 #include <readline/history.h>
@@ -19,8 +20,7 @@
 
 int main (int argc, char **argv)
 {
-	pthread_t th;
-	void *status;
+	static pthread_t th;
 	char *cmd, *hist;
 	char prompt[] = "client> ";
 	int opt, opts = 0;
@@ -52,23 +52,20 @@ int main (int argc, char **argv)
 
 
 	pthread_create(&th, NULL, listener, (void *)CLIENT_USAGE);
-
-	if (fork()) {
-		pthread_join(th, &status);
-		printf("Show Statistics\n");
-	} else {
-		while (1) {
-			cmd = readline(prompt);
-			if (!strcmp(cmd, "exit") || !strcmp(cmd, "quit"))
-				break;
-			hist = strdup(cmd);
-			parse_cmds(cmd);
-			free(cmd);
-			if (hist && *hist)
-				add_history(hist);
+	while (1) {
+		cmd = readline(prompt);
+		if (!strcmp(cmd, "exit") || !strcmp(cmd, "quit")){
+			if(!pthread_kill(th, SIGKILL))
+				printf("thread not canceled\n");
+			break;
 		}
-		clear_history();
+		hist = strdup(cmd);
+		parse_cmds(cmd);
+		free(cmd);
+		if (hist && *hist)
+			add_history(hist);
 	}
+	clear_history();
 	cleanup_route_table();
 
 	return 0;

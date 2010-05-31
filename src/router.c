@@ -12,7 +12,7 @@
 #include <netdb.h>
 #include <string.h>
 #include <pthread.h>
-
+#include <signal.h>
 #include <readline/readline.h>
 #include <readline/history.h>
 
@@ -25,7 +25,6 @@
 int main()
 {
 	pthread_t th;
-	void *status;
 	char *cmd, *hist;
 	char prompt[] = "router> ";
 
@@ -33,22 +32,19 @@ int main()
 
 	pthread_create(&th, NULL, listener, (void *)ROUTER_USAGE);
 
-	if (fork()) {
-		pthread_join(th, &status);
-		printf("Show Statistics\n");
-	} else {
-		while (1) {
-			cmd = readline(prompt);
-			if (!strcmp(cmd, "exit") || !strcmp(cmd, "quit"))
-				break;
-			hist = strdup(cmd);
-			parse_cmds(cmd);
-			free(cmd);
-			if (hist && *hist)
-				add_history(hist);
+	while (1) {
+		cmd = readline(prompt);
+		if (!strcmp(cmd, "exit") || !strcmp(cmd, "quit")) {
+			pthread_kill(th, SIGKILL);
+			break;
 		}
-		clear_history();
+		hist = strdup(cmd);
+		parse_cmds(cmd);
+		free(cmd);
+		if (hist && *hist)
+			add_history(hist);
 	}
+	clear_history();
 	cleanup_route_table();
 
 	return 0;
