@@ -58,6 +58,7 @@ int save_data(struct data_info *data)
 		return -1;
 	}
 	//TODO: Definir esse retorno, talvez retornar o retorno de fwrite()
+	fclose(fp);
 	return 0;
 }
 
