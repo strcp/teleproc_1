@@ -63,9 +63,7 @@ int where_to_send(char *packet)
 	struct data_info *data;
 
 	ip = (struct iphdr *)packet;
-	udp = (struct udphdr *)(packet + sizeof(struct iphdr));
-	data = (struct data_info *)((char *)udp + sizeof(struct udphdr));
-
+	udp = get_udp_packet(packet);
 
 	if (!sanity_check(ip)) {
 		printf("Packet received with error, dropping.\n");
@@ -74,6 +72,7 @@ int where_to_send(char *packet)
 	}
 	/* FIXME: Esse save_data é para finalidade de teste de transmissão de pacote
 	 * e deve ser removido. */
+	data = get_packet_data(packet);
 	save_data(data);
 
 	_dump_packet_headers(packet);
