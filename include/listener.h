@@ -13,3 +13,4 @@ typedef enum usage_type_t {
 int sanity_check(struct iphdr *ip);
 void *listener(void *usage_type);
 int where_to_send(char *packet, usage_type_t usage_type);
+void thread_exit();

@@ -35,7 +35,7 @@ int main()
 	while (1) {
 		cmd = readline(prompt);
 		if (!strcmp(cmd, "exit") || !strcmp(cmd, "quit")) {
-			pthread_kill(th, SIGKILL);
+			thread_exit();
 			break;
 		}
 		hist = strdup(cmd);

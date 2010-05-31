@@ -18,6 +18,11 @@
 #include <cmd_parser.h>
 #include <data.h>
 
+int exit_thread = 0;
+
+void thread_exit(){
+	exit_thread = 1;
+}
 
 int sanity_check(struct iphdr *ip)
 {
@@ -101,7 +106,7 @@ void *listener(void *usage_type)
 		pthread_exit((void *)EXIT_FAILURE);
 	}
 
-	while (1) {
+	while (!exit_thread) {
 		printf("Awaiting for packets.\n");
 
 		addr_len = sizeof(struct sockaddr_in);

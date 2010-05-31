@@ -55,8 +55,9 @@ int main (int argc, char **argv)
 	while (1) {
 		cmd = readline(prompt);
 		if (!strcmp(cmd, "exit") || !strcmp(cmd, "quit")){
-			if(!pthread_kill(th, SIGKILL))
-				printf("thread not canceled\n");
+			//if(!pthread_kill(th, SIGSTOP))
+			//	printf("thread not canceled\n");
+			thread_exit();
 			break;
 		}
 		hist = strdup(cmd);
