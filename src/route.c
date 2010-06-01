@@ -45,9 +45,9 @@ void init_default_routes(void)
 }
 
 /**
- * Localiza a rota baseado no endereço destino.
+ * Avalia se uma rota já existe baseado no endereço destino.
  * @param dest Endereço de destino.
- * @return Ponteiro para a estrutura com a rota.
+ * @return 0 se não existe rota e 1 se já existe a rota.
  */
 static int route_exists(const char *dest)
 {
@@ -181,6 +181,12 @@ void show_route_table(void)
 	}
 }
 
+/**
+ * Localiza uma rota na tabela de rotas baseado no endereço de destino.
+ * @param daddr Endereço de destino em binario.
+ * @return Ponteiro para a estrutura com a rota ou NULL se nenhuma rota for
+ * encontrada.
+ */
 struct route *get_route_by_daddr(const in_addr_t daddr)
 {
 	struct route *ptr, *def;
@@ -196,6 +202,11 @@ struct route *get_route_by_daddr(const in_addr_t daddr)
 	return def;
 }
 
+/**
+ * Libera a memória usada por uma estrutura de rota.
+ * @param cr Ponteiro para estrutura de rota.
+ * @return void
+ */
 void free_route(struct route *cr)
 {
 	if (!cr)
@@ -208,6 +219,10 @@ void free_route(struct route *cr)
 	free(cr);
 }
 
+/**
+ * Libera a memória alocada por toda a tabela de roteamento.
+ * @return void
+ */
 void cleanup_route_table()
 {
 	struct route *r, *next;
@@ -217,3 +232,4 @@ void cleanup_route_table()
 		free_route(r);
 	}
 }
+/** @} */

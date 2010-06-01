@@ -3,6 +3,7 @@ BOTH:
 	- Fragmentação de pacote.
 	- Documentação.
 	- Modelador de pacote?
+	- Simplificar route_exists
 CLIENT:
 
 ROUTER:
