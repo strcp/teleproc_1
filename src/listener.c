@@ -46,6 +46,7 @@ int where_to_send(char *packet, usage_type_t usage_type)
 	struct iphdr *ip;
 	struct udphdr *udp;
 	struct data_info *data;
+	struct in_addr tmp;
 	int ret;
 
 	ip = (struct iphdr *)packet;
@@ -59,17 +60,29 @@ int where_to_send(char *packet, usage_type_t usage_type)
 
 	switch (usage_type) {
 		case ROUTER_USAGE:
-			_dump_packet_headers(packet);
+			//_dump_packet_headers(packet);
 			/* Router esta fazendo forward do pacote, subtrai ttl */
 			ip->ttl--;
 			ip->check = 0;
 			ip->check = in_cksum((unsigned short *)ip, ip->tot_len);
 			cstats.fw_pkts += ip->tot_len;
 			ret = send_data(packet);
+			printf("Forwarding packet:\n");
+			printf("Packet: %d bytes\n", ip->tot_len);
+			tmp.s_addr = ip->saddr;
+			printf("From: %s\n", inet_ntoa(tmp));
+			tmp.s_addr = ip->daddr;
+			printf("To: %s\n", inet_ntoa(tmp));
 			break;
 		default:
 			data = get_packet_data(packet);
 			ret = save_data(data);
+			printf("Data received:\n");
+			printf("Packet: %d bytes\n", ip->tot_len);
+			tmp.s_addr = ip->saddr;
+			printf("From: %s\n", inet_ntoa(tmp));
+			printf("File Name: %s\n", data->name);
+			printf("File size: %ld bytes\n", data->size);
 			break;
 	}
 
