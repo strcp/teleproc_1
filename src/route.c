@@ -6,6 +6,11 @@
  *          : Benito Michelon
  *****************************************************************/
 
+/**
+ * @defgroup route Funções relativas às rotas do usuário.
+ * @brief Funções para manipulação das rotas do usuário.
+ * @{
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -23,7 +28,11 @@
 
 static struct route *client_route = NULL;
 
-int init_default_routes(void)
+/**
+ * Inicia as rotas padrão do usuário.
+ * @return void
+ */
+void init_default_routes(void)
 {
 	/* TODO */
 	struct clientnet_info *cinfo, *ptr;
@@ -33,26 +42,37 @@ int init_default_routes(void)
 	for (ptr = cinfo; ptr; ptr = ptr->next) {
 		add_client_route(inet_ntoa(ptr->addr), "0.0.0.0", "255.255.255.255", ptr->iface);
 	}
-
-	return 1;
 }
 
-static struct route *find_route(const char *dest)
+/**
+ * Localiza a rota baseado no endereço destino.
+ * @param dest Endereço de destino.
+ * @return Ponteiro para a estrutura com a rota.
+ */
+static int route_exists(const char *dest)
 {
 	struct route *ptr;
 
 	if (!dest)
-		return NULL;
+		return 0;
 
 	for (ptr = client_route; ptr; ptr = ptr->next) {
 		if (!(ptr->dest.s_addr ^ (inet_addr(dest)))) {
-			return ptr;
+			return 1;
 		}
 	}
 
-	return NULL;
+	return 0;
 }
 
+/**
+ * Adiciona uma nova rota à tabela de rotas do usuário.
+ * @param dest Endereço de destino.
+ * @param gateway Endereço de gateway.
+ * @param genmask Endereço de netmask.
+ * @param iface Nome da interface.
+ * @return Ponteiro para a estrutura com a rota criada.
+ */
 struct route *add_client_route(const char *dest,
 					 const char *gateway,
 					 const char *genmask,
@@ -74,9 +94,9 @@ struct route *add_client_route(const char *dest,
 	}
 	free_clientnet_info(cinfo);
 
-	if ((croute = find_route(dest))) {
+	if (route_exists(dest)) {
 		printf("Route already exists.\n");
-		return croute;
+		return NULL;
 	}
 
 	croute = malloc(sizeof(struct route));
@@ -104,6 +124,11 @@ struct route *add_client_route(const char *dest,
 	return croute;
 }
 
+/**
+ * Remove uma rota da tabela de rotas do usuário.
+ * @param dest Endereço de destino.
+ * @return 0 em erro e !0 em sucesso.
+ */
 int del_client_route(const char *dest)
 {
 	struct route *ptr;
@@ -113,7 +138,7 @@ int del_client_route(const char *dest)
 		return 0;
 	}
 
-	if ((ptr = find_route(dest))) {
+	if ((ptr = get_route_by_daddr(inet_addr(dest)))) {
 		if (ptr == client_route) {		// Se o nodo for o primeiro
 			if (ptr->next) {
 				client_route = ptr->next;
@@ -137,6 +162,10 @@ int del_client_route(const char *dest)
 	return 0;
 }
 
+/**
+ * Exibe a table de roteamento do usuário.
+ * @return void
+ */
 void show_route_table(void)
 {
 	/*TODO: Acertar a identação da tabela na exibição */
