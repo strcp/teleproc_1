@@ -1,16 +1,16 @@
 /******************************************************************
- * Data : 17.06.201
+ * Data : 17.06.2010
  * Disciplina   : Comunicação de dados e Teleprocessamento - PUCRS
  *
  * Autores  : Cristiano Bolla Fernandes
  *          : Benito Michelon
  *****************************************************************/
 
-#include <stdio.h>
-
 /**
  * @brief Data Information
  */
+#include <stdio.h>
+
 struct data_info
 {
 	/*@{*/

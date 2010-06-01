@@ -1,5 +1,5 @@
 /******************************************************************
- * Data : 17.06.201
+ * Data : 17.06.2010
  * Disciplina   : Comunicação de dados e Teleprocessamento - PUCRS
  *
  * Autores  : Cristiano Bolla Fernandes
@@ -8,7 +8,6 @@
 
 /**
  * @defgroup cmd_parser Parser de Comandos
- * @ingroup cmd_parser
  * @brief Funções de parsing para os comandos chamados pelo terminar tanto do
  * roteador quanto do cliente.
  * @{

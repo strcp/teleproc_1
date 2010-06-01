@@ -1,5 +1,5 @@
 /******************************************************************
- * Data : 17.06.201
+ * Data : 17.06.2010
  * Disciplina   : Comunicação de dados e Teleprocessamento - PUCRS
  *
  * Autores  : Cristiano Bolla Fernandes
@@ -8,7 +8,6 @@
 
 /**
  * @defgroup client Terminal do Cliente
- * @ingroup client
  * @brief Terminal de comunicação com o cliente.
  * @{
  */

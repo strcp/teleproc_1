@@ -1,5 +1,5 @@
 /******************************************************************
- * Data	: 17.06.201
+ * Data	: 17.06.2010
  * Disciplina	: Comunicação de dados e Teleprocessamento - PUCRS
  *
  * Autores	: Cristiano Bolla Fernandes
@@ -8,7 +8,6 @@
 
 /**
  * @defgroup connections Funções de conexão
- * @ingroup connections
  * @brief Funções relativas ao envio e modelagem de pacotes
  * @{
  */
@@ -121,7 +120,6 @@ void free_clientnet_info(struct clientnet_info *cinfo)
 
 /**
  * Recebe as informações sobre as interfaces com endereço IPv4 do usuário.
- * @param void
  * @return Ponteiro para lista de redes do usuário.
  * @return NULL, se não houver interfaces.
  */

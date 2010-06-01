@@ -1,5 +1,5 @@
 /******************************************************************
- * Data : 17.06.201
+ * Data : 17.06.2010
  * Disciplina   : Comunicação de dados e Teleprocessamento - PUCRS
  *
  * Autores  : Cristiano Bolla Fernandes
@@ -7,7 +7,6 @@
  *****************************************************************/
 
 /**
- * @defgroup client Client
  * @ingroup client
  * @brief Estruturas relacionadas às redes do usuário.
  * @{

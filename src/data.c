@@ -1,17 +1,27 @@
 /******************************************************************
- * Data : 17.06.201
+ * Data : 17.06.2010
  * Disciplina   : Comunicação de dados e Teleprocessamento - PUCRS
  *
  * Autores  : Cristiano Bolla Fernandes
  *          : Benito Michelon
  *****************************************************************/
 
+/**
+ * @defgroup data Manipulação de dados
+ * @brief Manipulação dos dados enviados e recebidos.
+ * @{
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include <data.h>
 
+/**
+ * Calcula o tamanho do arquivo.
+ * @param fp Ponteiro para o descritor do arquivo.
+ * @return O tamanho do arquivo em bytes.
+ */
 long int file_size(FILE *fp)
 {
 	long size;
@@ -24,6 +34,11 @@ long int file_size(FILE *fp)
 	return size;
 }
 
+/**
+ * Carrega os dados do arquivo em uma estrutura de data_info.
+ * @param file_path Caminho para o arquivo que será carregado.
+ * @return Estrutura de data_info com os dados do arquivo.
+ */
 struct data_info *load_data(char *file_path)
 {
 	FILE *fp;
@@ -53,6 +68,11 @@ struct data_info *load_data(char *file_path)
 	return dinfo;
 }
 
+/**
+ * Salva os dados de uma estrutura de data_info em um arquivo.
+ * @param data Estrutura com os dados do arquivo.
+ * @return < 0 em erro, número de itens escritos em sucesso.
+ */
 int save_data(struct data_info *data)
 {
 	FILE *fp;
@@ -72,6 +92,11 @@ int save_data(struct data_info *data)
 	return ret;
 }
 
+/**
+ * Libera a memória usada por uma estrutura de data_info.
+ * @param dinfo Ponteiro para a estrutura.
+ * @return void
+ */
 void free_data_info(struct data_info *dinfo)
 {
 	if (!dinfo)
@@ -82,9 +107,15 @@ void free_data_info(struct data_info *dinfo)
 	free(dinfo);
 }
 
+/**
+ * Exibe os dados de uma estrutura de data_info.
+ * @param dinfo Ponteiro para a estrutura.
+ * @return void
+ */
 void dump_data(struct data_info *dinfo)
 {
 	printf("Dump data info\n");
 	printf("Name: %s\n", dinfo->name);
 	printf("Size: %ld\n\n", dinfo->size);
 }
+/** @} */
