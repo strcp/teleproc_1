@@ -1,3 +1,11 @@
+/******************************************************************
+ * Data : 17.06.201
+ * Disciplina   : Comunicação de dados e Teleprocessamento - PUCRS
+ *
+ * Autores  : Cristiano Bolla Fernandes
+ *          : Benito Michelon
+ *****************************************************************/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>

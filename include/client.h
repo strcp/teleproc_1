@@ -1,3 +1,11 @@
+/******************************************************************
+ * Data : 17.06.201
+ * Disciplina   : Comunicação de dados e Teleprocessamento - PUCRS
+ *
+ * Autores  : Cristiano Bolla Fernandes
+ *          : Benito Michelon
+ *****************************************************************/
+
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -9,16 +17,16 @@
 struct clientnet_info
 {
 	/*@{*/
-	char *iface;			/**< the interface comunication */
-	struct in_addr addr;		/**< the interface address */
-	struct in_addr netmask;		/**< the netmask of the address */
-	struct in_addr netaddr;		/**< the network address */
-	struct in_addr bcastaddr;	/**< the broadcast address */
-	struct clientnet_info *next;    /**< the next clientnet_info node */
+	char *iface;					/**< Nome da interface */
+	struct in_addr addr;			/**< Endereço da interface. */
+	struct in_addr netmask;			/**< Netmask da interface */
+	struct in_addr netaddr;			/**< Endereço de rede da interface */
+	struct in_addr bcastaddr;		/**< Endereço de broadcast da interface */
+	struct clientnet_info *next;    /**< Ponteiro para o próximo clientnet_info */
 	/*@}*/
 };
 
-/** 
- * @brief Porta aonde o cliente ira receber dados, src_port na hora do envio 
+/**
+ * @brief Porta aonde o cliente ira receber dados, src_port na hora do envio
  */
 unsigned int client_port;

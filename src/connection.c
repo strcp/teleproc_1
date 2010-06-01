@@ -1,3 +1,18 @@
+/******************************************************************
+ * Data	: 17.06.201
+ * Disciplina	: Comunicação de dados e Teleprocessamento - PUCRS
+ *
+ * Autores	: Cristiano Bolla Fernandes
+ *			: Benito Michelon
+ *****************************************************************/
+
+/**
+ * @defgroup connections Funções de conexão
+ * @ingroup connections
+ * @brief Funções relativas ao envio e modelagem de pacotes
+ * @{
+ */
+
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>

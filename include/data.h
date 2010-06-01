@@ -1,10 +1,23 @@
+/******************************************************************
+ * Data : 17.06.201
+ * Disciplina   : Comunicação de dados e Teleprocessamento - PUCRS
+ *
+ * Autores  : Cristiano Bolla Fernandes
+ *          : Benito Michelon
+ *****************************************************************/
+
 #include <stdio.h>
 
+/**
+ * @brief Data Information
+ */
 struct data_info
 {
-	long int size;
-	char name[255];
-	void *data;
+	/*@{*/
+	long int size;		/**< Tamanho do arquivo carregado */
+	char name[255];		/**< Nome do arquivo */
+	void *data;			/**< Ponteiro para os dados do arquivo carregados */
+	/*@}*/
 };
 
 long int file_size(FILE *fp);

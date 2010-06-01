@@ -1,3 +1,11 @@
+/******************************************************************
+ * Data : 17.06.201
+ * Disciplina   : Comunicação de dados e Teleprocessamento - PUCRS
+ *
+ * Autores  : Cristiano Bolla Fernandes
+ *          : Benito Michelon
+ *****************************************************************/
+
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netinet/ip.h>
@@ -8,14 +16,22 @@
 
 #include <client.h>
 
+/**
+ * @brief Estatísticas de conexão
+ */
 struct connection_stats
 {
-	unsigned int sent_pkts;
-	unsigned int recv_pkts;
-	unsigned int lost_pkts;
-	unsigned int fw_pkts;
+	/*@{*/
+	unsigned int sent_pkts;		/**< Quantidade em bytes de opacotes enviados */
+	unsigned int recv_pkts;		/**< Quantidade em bytes de opacotes recebidos */
+	unsigned int lost_pkts;		/**< Quantidade de opacotes perdidos no recebimento */
+	unsigned int fw_pkts;		/**< Quantidade em bytes de opacotes redirecionados */
+	/*@}*/
 };
 
+/**
+ * @brief Instância das estatísticas de conexão.
+ */
 struct connection_stats cstats;
 
 void free_clientnet_info(struct clientnet_info *cinfo);
