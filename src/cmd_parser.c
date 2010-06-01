@@ -7,7 +7,7 @@
  *****************************************************************/
 
 /**
- * @defgroup cmd_parser Cmd Parser
+ * @defgroup cmd_parser Parser de Comandos
  * @ingroup cmd_parser
  * @brief Funções de parsing para os comandos chamados pelo terminar tanto do
  * roteador quanto do cliente.

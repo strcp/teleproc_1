@@ -7,7 +7,7 @@
  *****************************************************************/
 
 /**
- * @defgroup client Client
+ * @defgroup client Terminal do Cliente
  * @ingroup client
  * @brief Terminal de comunicação com o cliente.
  * @{
