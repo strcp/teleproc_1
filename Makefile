@@ -7,11 +7,8 @@ OBJ = $(SRC:.c=.o)
 all:
 	cd src && $(MAKE)
 
-docs:
-	doxygen
-
 .PHONY: clean mrproper
 
 clean:
 	cd src/ && rm -rf *.o *~ $(EXEC)
-
+	rm -rf docs/refs

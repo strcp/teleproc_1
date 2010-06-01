@@ -1,5 +1,5 @@
 PROJECT_NAME           = "Trabalho de Comunicação de Dados e Teleprocessamento"
-OUTPUT_DIRECTORY       = doc
+OUTPUT_DIRECTORY       = docs/refs
 OUTPUT_LANGUAGE        = Brazilian
 EXTRACT_ALL            = YES
 
