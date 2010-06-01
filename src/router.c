@@ -6,6 +6,11 @@
  *          : Benito Michelon
  *****************************************************************/
 
+/**
+ * @defgroup router Terminal do Roteador
+ * @brief Terminal de comunicação com o roteador.
+ * @{
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -30,6 +35,11 @@
 #include <cmd_parser.h>
 #include <data.h>
 
+
+/**
+ * Processo inicial do Roteador.
+ * @return 0
+ */
 int main()
 {
 	pthread_t th;
@@ -38,6 +48,7 @@ int main()
 
 	init_default_routes();
 
+	/* Aqui a thread que recebe os dados é iniciada. */
 	pthread_create(&th, NULL, listener, (void *)ROUTER_USAGE);
 
 	while (1) {
@@ -57,3 +68,4 @@ int main()
 
 	return 0;
 }
+/** @} */

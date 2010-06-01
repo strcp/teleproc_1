@@ -6,6 +6,10 @@
  *          : Benito Michelon
  *****************************************************************/
 
+/**
+ * @ingroup connection
+ * @{
+ */
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netinet/ip.h>
@@ -16,22 +20,16 @@
 
 #include <client.h>
 
-/**
- * @brief Estatísticas de conexão
- */
+/** Estruturas com os dados relativos às estatísticas de conexões do usuário. */
 struct connection_stats
 {
-	/*@{*/
 	unsigned int sent_pkts;		/**< Quantidade em bytes de opacotes enviados */
 	unsigned int recv_pkts;		/**< Quantidade em bytes de opacotes recebidos */
-	unsigned int lost_pkts;		/**< Quantidade de opacotes perdidos no recebimento */
+	unsigned int lost_pkts;		/**< Quantidade de pacotes perdidos no recebimento */
 	unsigned int fw_pkts;		/**< Quantidade em bytes de opacotes redirecionados */
-	/*@}*/
 };
 
-/**
- * @brief Instância das estatísticas de conexão.
- */
+/** Instância das estatísticas de conexão. */
 struct connection_stats cstats;
 
 void free_clientnet_info(struct clientnet_info *cinfo);
@@ -64,4 +62,4 @@ unsigned short in_cksum(unsigned short *addr, int len);
 void enable_error(void);
 void disable_error(void);
 void dump_statistics(void);
-
+/** @} */

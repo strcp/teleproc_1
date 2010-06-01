@@ -8,7 +8,6 @@
 
 /**
  * @ingroup client
- * @brief Estruturas relacionadas às redes do usuário.
  * @{
  */
 #include <netinet/in.h>

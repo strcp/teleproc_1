@@ -26,6 +26,7 @@
 #include <connection.h>
 #include <route.h>
 
+/** Estrutura com a tabela de roteamento do usuário. */
 static struct route *client_route = NULL;
 
 /**

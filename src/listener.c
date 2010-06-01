@@ -31,8 +31,13 @@
 #include <cmd_parser.h>
 #include <data.h>
 
+/** Flag para sinalizar a saída ou não da thread. */
 int exit_thread = 0;
 
+/**
+ * Função chamada para sinalizar a saída para a thread.
+ * @return void
+ */
 void thread_exit(){
 	exit_thread = 1;
 }
