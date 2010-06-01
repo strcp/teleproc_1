@@ -134,7 +134,7 @@ void show_route_table(void)
 	/*TODO: Acertar a identação da tabela na exibição */
 	struct route *ptr;
 
-	printf("Client IP routing table\n");
+	printf("IP routing table\n");
 	printf("Destination \tGateway \tGenmask \t\tIface\n");
 	for (ptr = client_route; ptr; ptr = ptr->next) {
 		printf("%s \t", inet_ntoa(ptr->dest));
