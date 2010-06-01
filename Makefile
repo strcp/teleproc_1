@@ -7,6 +7,9 @@ OBJ = $(SRC:.c=.o)
 all:
 	cd src && $(MAKE)
 
+docs:
+	doxygen
+
 .PHONY: clean mrproper
 
 clean:

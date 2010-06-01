@@ -6,6 +6,12 @@
  *          : Benito Michelon
  *****************************************************************/
 
+/**
+ * @defgroup client Client
+ * @ingroup client
+ * @brief Terminal de comunicação com o cliente.
+ * @{
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -26,9 +32,12 @@
 #include <cmd_parser.h>
 #include <listener.h>
 
-/*! \brief Entry Point do Processo Cliente
- * \param  argv -s \<source port\>
- * \return 0 se tudo estiver ok
+
+/**
+ * Processo inicial do Cliente. Ao rodar é setada a porta na qual o Cliente irá
+ * receber seus dados.
+ * @param argv -s \<source port\>
+ * @return Retorna 0 se não houver problemas.
  */
 int main (int argc, char **argv)
 {
@@ -62,13 +71,11 @@ int main (int argc, char **argv)
 	 * antiga. */
 	init_default_routes();
 
-
+	/* Aqui a thread que recebe os dados é iniciada. */
 	pthread_create(&th, NULL, listener, (void *)CLIENT_USAGE);
 	while (1) {
 		cmd = readline(prompt);
 		if (!strcmp(cmd, "exit") || !strcmp(cmd, "quit")){
-			//if(!pthread_kill(th, SIGSTOP))
-			//	printf("thread not canceled\n");
 			thread_exit();
 			break;
 		}
@@ -83,3 +90,4 @@ int main (int argc, char **argv)
 
 	return 0;
 }
+/** @} */

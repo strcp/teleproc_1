@@ -12,7 +12,6 @@
  * @brief Funções relativas ao envio e modelagem de pacotes
  * @{
  */
-
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -34,18 +33,32 @@
 
 #define ROUTER_PORT 6666
 
+/** Flag que indica se a inserção de erros está ativada ou desativada */
 static int error_enable = 0;
 
+
+/**
+ * Ativa a inserção de erros no pacote a ser enviado.
+ * @return void
+ */
 void enable_error(void)
 {
 	error_enable = 1;
 }
 
+/**
+ * Desativa a inserção de erros no pacote a ser enviado.
+ * @return void
+ */
 void disable_error(void)
 {
 	error_enable = 0;
 }
 
+/**
+ * Expõe os dados de estatísticas de conexão para o usuário.
+ * @return void
+ */
 void dump_statistics(void)
 {
 	printf("Connection Statistics:\n");
@@ -56,6 +69,12 @@ void dump_statistics(void)
 		printf("Forwarded data: %d bytes\n", cstats.fw_pkts);
 }
 
+/**
+ * Calcula e retorna o valor de check de sanidade de um pacote.
+ * @param addr Ponteiro para o pacote.
+ * @param len Tamanho do pacote.
+ * @return Retorna o valor do CRC calculado.
+ */
 unsigned short in_cksum(unsigned short *addr, int len)
 {
 	int nleft = len;
@@ -80,6 +99,11 @@ unsigned short in_cksum(unsigned short *addr, int len)
 	return (answer);
 }
 
+/**
+ * Libera a memória utilizada pela lista de informações de redes do usuário.
+ * @param cinfo Ponteiro para a lista de redes.
+ * @return void
+ */
 void free_clientnet_info(struct clientnet_info *cinfo)
 {
 	struct clientnet_info *ptr, *next;
@@ -95,6 +119,12 @@ void free_clientnet_info(struct clientnet_info *cinfo)
 	}
 }
 
+/**
+ * Recebe as informações sobre as interfaces com endereço IPv4 do usuário.
+ * @param void
+ * @return Ponteiro para lista de redes do usuário.
+ * @return NULL, se não houver interfaces.
+ */
 struct clientnet_info *get_ifaces_info(void)
 {
 	struct ifaddrs *ifap, *tmpif;
@@ -153,6 +183,12 @@ struct clientnet_info *get_ifaces_info(void)
 	return cnet_info;
 }
 
+/**
+ * Recebe as informações sobre uma interface com endereço IPv4 específica do usuário.
+ * @param iface Nome da interface desejada
+ * @return Ponteiro para as estrutura com informações de rede da interface específica.
+ * @return NULL, se não houver interface.
+ */
 struct clientnet_info *get_iface_info(const char *iface)
 {
 	struct clientnet_info *cinfo, *ptr, *cinfo_ret;
@@ -185,6 +221,11 @@ struct clientnet_info *get_iface_info(const char *iface)
 	return NULL;
 }
 
+/**
+ * Comando para listar informações sobre as interfaces com rede IPv4 ativas.
+ * @param iface Nome da interface desejada ou NULL para listar todas.
+ * @return void
+ */
 void ifconfig(char *iface)
 {
 	struct clientnet_info *cinfo, *ptr;
@@ -204,12 +245,22 @@ void ifconfig(char *iface)
 	free_clientnet_info(cinfo);
 }
 
+/**
+ * Retorna o header UDP do pacote.
+ * @param packet Ponteiro para o pacote.
+ * @return Ponteiro para a estrutura UDP contida no pacote.
+ */
 struct udphdr *get_udp_packet(char *packet)
 {
 	return packet ? (struct udphdr *)(packet + sizeof(struct iphdr)) : NULL;
 }
 
-/* Essa função modifica dados do pacote, o que modifica seu CRC. */
+/**
+ * Retorna o ponteiro para estrutura de dados do pacote.
+ * Essa função modifica dados do pacote, o que modifica seu CRC.
+ * @param packet Ponteiro para o pacote.
+ * @return Ponteiro para a estrutura de dados contida no pacote.
+ */
 struct data_info *get_packet_data(char *packet)
 {
 	struct data_info *data;
@@ -223,6 +274,15 @@ struct data_info *get_packet_data(char *packet)
 	return data;
 }
 
+/**
+ * Seta os dados no header UDP.
+ * @param udp Ponteiro para a estrutura de header UDP a ser setada.
+ * @param dest Porta destino.
+ * @param src Porta origem.
+ * @param data Ponteiro para a estrutura de dados.
+ * @param len Tamanho do pacote de dados que será adicionado ao UDP.
+ * @return Ponteiro para a estrutura UDP devidamente setada.
+ */
 struct udphdr *set_udp_packet(struct udphdr *udp,
 							unsigned short dest,
 							unsigned short src,
@@ -245,6 +305,14 @@ struct udphdr *set_udp_packet(struct udphdr *udp,
 	return udp;
 }
 
+/**
+ * Seta os dados no header IP.
+ * @param ip Ponteiro para a estrutura de header IP a ser setada.
+ * @param saddr Endereço IP de origem.
+ * @param daddr Endereço IP de destino.
+ * @param len Tamanho total do pacote que será enviado pelo IP (IP + UDP + DATA).
+ * @return Ponteiro para a estrutura IP devidamente setada.
+ */
 struct iphdr *set_ip_packet(struct iphdr *ip, const in_addr_t saddr, const in_addr_t daddr, size_t len)
 {
 	if (!ip || !saddr || !daddr) {
@@ -277,7 +345,11 @@ struct iphdr *set_ip_packet(struct iphdr *ip, const in_addr_t saddr, const in_ad
 	return ip;
 }
 
-/* Returns 0 if error creating package and 1 on success */
+/**
+ * Cria um pacote zerado que será enviado pela rede.
+ * @param data_length Tamanho total do pacote que será enviado pelo IP (IP + UDP + DATA).
+ * @return Ponteiro para o pacote criado.
+ */
 char *create_packet(size_t data_length)
 {
 	char *packet;
@@ -293,6 +365,11 @@ char *create_packet(size_t data_length)
 	return packet;
 }
 
+/**
+ * Exibe os dados do pacote.
+ * @param pkt Ponteiro para o pacote.
+ * @return void
+ */
 void _dump_packet_headers(char *pkt)
 {
 	struct in_addr tmp;
@@ -328,6 +405,11 @@ void _dump_packet_headers(char *pkt)
 	}
 }
 
+/**
+ * Envia um pacote já configurado pela rede.
+ * @param packet Ponteiro para o pacote.
+ * @return < 0 em falha, número de bytes enviados em sucesso.
+ */
 int send_data(const void *packet)
 {
 	struct clientnet_info *cinfo;
@@ -387,6 +469,14 @@ int send_data(const void *packet)
 	return ip->tot_len;
 }
 
+/**
+ * Configura um pacote e envia pela rede.
+ * @param daddr Endereço de destino.
+ * @param dport Porta de origem.
+ * @param data Ponteiro para os dados a serem enviados.
+ * @param len Tamanho do pacote a ser enviado.
+ * @return < 0 em falha, número de bytes enviados em sucesso.
+ */
 int send_udp_data(const char *daddr,
 				const unsigned short dport,
 				const void *data,
@@ -423,3 +513,4 @@ int send_udp_data(const char *daddr,
 
 	return ret;
 }
+/** @} */

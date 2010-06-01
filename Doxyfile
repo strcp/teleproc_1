@@ -1,11 +1,11 @@
 PROJECT_NAME           = "Trabalho de Comunicação de Dados e Teleprocessamento"
 OUTPUT_DIRECTORY       = doc
-OUTPUT_LANGUAGE        = English
+OUTPUT_LANGUAGE        = Brazilian
 EXTRACT_ALL            = YES
 
 INPUT                  = .
 FILE_PATTERNS          = *.c \
-                         *.h 
+                         *.h
 RECURSIVE              = YES
 GENERATE_HTML          = YES
 INCLUDE_GRAPH          = YES

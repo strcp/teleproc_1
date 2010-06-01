@@ -6,6 +6,13 @@
  *          : Benito Michelon
  *****************************************************************/
 
+/**
+ * @defgroup cmd_parser Cmd Parser
+ * @ingroup cmd_parser
+ * @brief Funções de parsing para os comandos chamados pelo terminar tanto do
+ * roteador quanto do cliente.
+ * @{
+ */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -14,6 +21,11 @@
 #include <connection.h>
 #include <data.h>
 
+/**
+ * Verificação dos parâmetros passados ao comando route.
+ * @param params Ponteiro para os parâmetros passados para o comando de route.
+ * @return void
+ */
 void route_cmd(char *params)
 {
 	char *p1, *p2, *tmp;
@@ -64,6 +76,11 @@ route_usage:
 	printf("Usage: route {add|del|flush|show} -net <ip> gw <ip> netmask <ip> dev <devname>\n");
 }
 
+/**
+ * Verificação dos parâmetros passados ao comando send.
+ * @param params Ponteiro para os parâmetros passados para o comando de send.
+ * @return void
+ */
 void send_cmd(char *params)
 {
 	char *p1, *p2;
@@ -94,6 +111,11 @@ send_usage:
 	printf("Usage: send -file </path/to/file> <dest_ip> <dest_port>\n");
 }
 
+/**
+ * Verificação dos parâmetros passados ao comando inserção de erro.
+ * @param params Ponteiro para os parâmetros passados para o comando de error.
+ * @return void
+ */
 void error_cmd(char *params)
 {
 	char *p1, *p2;
@@ -115,6 +137,11 @@ send_usage:
 	printf("Usage: error {enable|disable}\n");
 }
 
+/**
+ * Verificação dos parâmetros passados ao comando de ifconfig.
+ * @param params Ponteiro para os parâmetros passados para o comando ifconfig.
+ * @return void
+ */
 void ifconfig_cmd(char *params)
 {
 	char *p1, *p2;
@@ -126,6 +153,12 @@ void ifconfig_cmd(char *params)
 	}
 }
 
+/**
+ * Verifica qual o comando requisitado, pegando seus parâmetros e chamando as
+ * funções específicas de parsing de parâmetros do comando.
+ * @param full_cmd Ponteiro para os comando com os parâmetros passados pelo cliente.
+ * @return void
+ */
 void parse_cmds(char *full_cmd)
 {
 	char *cmd, *param;
@@ -147,3 +180,4 @@ void parse_cmds(char *full_cmd)
 	else
 		printf("cmd unknown.\n");
 }
+/** @} */
