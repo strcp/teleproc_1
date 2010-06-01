@@ -6,6 +6,11 @@
  *          : Benito Michelon
  *****************************************************************/
 
+/**
+ * @defgroup listener Funções de recebimento de dados.
+ * @brief Funções relativas ao recebimento de pacotes.
+ * @{
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -32,6 +37,11 @@ void thread_exit(){
 	exit_thread = 1;
 }
 
+/**
+ * Checa a sanidade de um pacote.
+ * @param ip Ponteiro para o ip header do pacote.
+ * @return 0 se o CRC é inválido e 1 quando válido.
+ */
 int sanity_check(struct iphdr *ip)
 {
 	unsigned short old_check;
@@ -49,6 +59,12 @@ int sanity_check(struct iphdr *ip)
 	return 0;
 }
 
+/**
+ * Avalia se o pacote deve ser redirecionado ou salvo.
+ * @param packet Ponteiro para o pacote.
+ * @param usage_type Tipo do cliente que está chamando a função.
+ * @return 0 em falha e !0 em sucesso.
+ */
 int where_to_send(char *packet, usage_type_t usage_type)
 {
 	struct iphdr *ip;
@@ -98,6 +114,11 @@ int where_to_send(char *packet, usage_type_t usage_type)
 	return ret;
 }
 
+/**
+ * Thread que aguarda o recebimento de dados.
+ * @param usage_type Tipo do cliente que está chamando a função.
+ * @return void
+ */
 void *listener(void *usage_type)
 {
 	int sockfd;
@@ -149,3 +170,4 @@ void *listener(void *usage_type)
 
 	pthread_exit((void*)EXIT_SUCCESS);
 }
+/** @} */
