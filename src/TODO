@@ -3,7 +3,7 @@ BOTH:
 	- Fechar as threads quando exit ou quit forem chamados.
 	- Fragmentação de pacote.
 CLIENT:
-	- Salvar os pacotes
+
 ROUTER:
 	- Log das mensagens RECEBIDAS e ENVIADAS(Repassadas)
 	- Encerrar a thread quando exit ou quit são chamados.
