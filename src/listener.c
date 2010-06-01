@@ -77,6 +77,7 @@ int where_to_send(char *packet, usage_type_t usage_type)
 		default:
 			data = get_packet_data(packet);
 			ret = save_data(data);
+			cstats.recv_pkts += ip->tot_len;
 			printf("Data received:\n");
 			printf("Packet: %d bytes\n", ip->tot_len);
 			tmp.s_addr = ip->saddr;

@@ -335,11 +335,13 @@ int send_data(const void *packet)
 		printf("Error getting interface.\n");
 		return -1;
 	}
+	printf("Sending Data:\n");
 	tmp.s_addr = ip->daddr;
 	printf("Destination: %s\n", inet_ntoa(tmp));
 	tmp.s_addr = ip->saddr;
 	printf("From: %s\n", inet_ntoa(tmp));
 	printf("Gateway: %s\n", inet_ntoa(croute->gateway));
+	printf("Data size: %d\n", ip->tot_len);
 
 	memset(&si, 0, sizeof(si));
 	si.sin_family = AF_INET;
