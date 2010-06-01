@@ -1,9 +1,9 @@
 BOTH:
 	- Verificar se os endereços IP são validos ao adicionar rotas.
-	- Fechar as threads quando exit ou quit forem chamados.
 	- Fragmentação de pacote.
+	- Documentação.
+	- Modelador de pacote?
 CLIENT:
 
 ROUTER:
 	- Log das mensagens RECEBIDAS e ENVIADAS(Repassadas)
-	- Encerrar a thread quando exit ou quit são chamados.
