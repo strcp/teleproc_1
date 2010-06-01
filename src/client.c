@@ -18,6 +18,10 @@
 #include <cmd_parser.h>
 #include <listener.h>
 
+/*! \brief Entry Point do Processo Cliente
+ * \param  argv -s \<source port\>
+ * \return 0 se tudo estiver ok
+ */
 int main (int argc, char **argv)
 {
 	static pthread_t th;

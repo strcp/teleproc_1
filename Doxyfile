@@ -1,0 +1,16 @@
+PROJECT_NAME           = "Trabalho de Comunicação de Dados e Teleprocessamento"
+OUTPUT_DIRECTORY       = doc
+OUTPUT_LANGUAGE        = English
+EXTRACT_ALL            = YES
+
+INPUT                  = .
+FILE_PATTERNS          = *.c \
+                         *.h 
+RECURSIVE              = YES
+GENERATE_HTML          = YES
+INCLUDE_GRAPH          = YES
+INCLUDED_BY_GRAPH      = YES
+GRAPHICAL_HIERARCHY    = YES
+DOT_IMAGE_FORMAT       = png
+GENERATE_LEGEND        = YES
+
