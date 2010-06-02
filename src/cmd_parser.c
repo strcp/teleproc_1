@@ -25,7 +25,7 @@
  * @param params Ponteiro para os parâmetros passados para o comando de route.
  * @return void
  */
-void route_cmd(char *params)
+static void route_cmd(char *params)
 {
 	char *p1, *p2, *tmp;
 	char *net, *gw, *nm, *iface;
@@ -80,7 +80,7 @@ route_usage:
  * @param params Ponteiro para os parâmetros passados para o comando de send.
  * @return void
  */
-void send_cmd(char *params)
+static void send_cmd(char *params)
 {
 	char *p1, *p2;
 	char *daddr, *dport, *data;
@@ -115,7 +115,7 @@ send_usage:
  * @param params Ponteiro para os parâmetros passados para o comando de error.
  * @return void
  */
-void error_cmd(char *params)
+static void error_cmd(char *params)
 {
 	char *p1, *p2;
 
@@ -137,11 +137,11 @@ send_usage:
 }
 
 /**
- * Verificação dos parâmetros passados ao comando de ifconfig.
- * @param params Ponteiro para os parâmetros passados para o comando ifconfig.
+ * verificação dos parâmetros passados ao comando de ifconfig.
+ * @param params ponteiro para os parâmetros passados para o comando ifconfig.
  * @return void
  */
-void ifconfig_cmd(char *params)
+static void ifconfig_cmd(char *params)
 {
 	char *p1, *p2;
 
@@ -150,6 +150,21 @@ void ifconfig_cmd(char *params)
 	} else {
 		ifconfig(NULL);
 	}
+}
+
+/**
+ * Listagem de todos os comandos existentes.
+ * @return void
+ */
+static void help(void)
+{
+	printf("Commands available:\n");
+	printf("\t- route\n");
+	printf("\t- ifconfig\n");
+	printf("\t- send\n");
+	printf("\t- stats\n");
+	printf("\t- error\n");
+	printf("\t- help\n");
 }
 
 /**
@@ -176,6 +191,8 @@ void parse_cmds(char *full_cmd)
 		dump_statistics();
 	else if (!(strcmp(cmd, "error")))
 		error_cmd(param);
+	else if (!(strcmp(cmd, "help")))
+		help();
 	else
 		printf("cmd unknown.\n");
 }

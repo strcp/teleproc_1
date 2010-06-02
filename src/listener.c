@@ -123,7 +123,7 @@ int where_to_send(char *packet, usage_type_t usage_type)
  * Thread que aguarda o recebimento de dados.
  * @param usage_type Tipo do cliente que está chamando a função.
  * @return void
- */
+ */ 
 void *listener(void *usage_type)
 {
 	int sockfd;
@@ -133,7 +133,7 @@ void *listener(void *usage_type)
 
 
 	if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
-		perror("socket");
+		perror("Error creating socket to listen");
 		pthread_exit((void *)EXIT_FAILURE);
 	}
 
@@ -148,8 +148,8 @@ void *listener(void *usage_type)
 			break;
 	}
 
-	if ((bind (sockfd, (struct sockaddr *)&server, sizeof(struct sockaddr_in))) < 0) {
-		perror("bind");
+	if ((bind(sockfd, (struct sockaddr *)&server, sizeof(struct sockaddr_in))) < 0) {
+		perror("Error binding port to listen");
 		close(sockfd);
 		pthread_exit((void *)EXIT_FAILURE);
 	}
@@ -163,7 +163,7 @@ void *listener(void *usage_type)
 		memset(buf, 0, MAXSIZE);
 
 		if ((recvfrom(sockfd, buf, MAXSIZE - 1 , 0, (struct sockaddr *)&client, &addr_len)) == -1) {
-			perror("recvfrom");
+			perror("Error receiving data (recvfrom)");
 			pthread_exit((void *)EXIT_FAILURE);
 		}
 
