@@ -388,18 +388,18 @@ void _dump_packet_headers(char *pkt)
 	printf("ip using proto: %d\n", ip->protocol);
 	printf("ip checksum: %X\n\n", ip->check);
 
-	printf("* UDP packet dump *\n");
 	udp = (struct udphdr *)(pkt + sizeof(struct iphdr));
+	printf("* UDP packet dump *\n");
 	printf("dest port: %d\n", ntohs(udp->dest));
 	printf("src port: %d\n", ntohs(udp->source));
 	printf("length: %d bytes\n", ntohs(udp->len));
 	printf("checksum: %X\n\n", udp->check);
 
-	printf("* DATA packet dump *\n");
 	dinfo = (struct data_info *)((char *)udp + sizeof(struct udphdr));
 	if (dinfo) {
+		printf("* DATA packet dump *\n");
 		printf("File name: %s\n", dinfo->name);
-		printf("File size: %ld bytes\n", dinfo->size);
+		printf("File size: %ld bytes\n\n", dinfo->size);
 	}
 }
 
@@ -432,11 +432,11 @@ int send_data(const void *packet)
 	}
 	printf("Sending Data:\n");
 	tmp.s_addr = ip->daddr;
-	printf("Destination: %s\n", inet_ntoa(tmp));
+	printf("Destination: %s:%d\n", inet_ntoa(tmp), udp->dest);
 	tmp.s_addr = ip->saddr;
-	printf("From: %s\n", inet_ntoa(tmp));
+	printf("From: %s:%d\n", inet_ntoa(tmp), udp->source);
 	printf("Gateway: %s\n", inet_ntoa(croute->gateway));
-	printf("Data size: %d\n", ip->tot_len);
+	printf("Packet size: %d bytes\n", ip->tot_len);
 
 	memset(&si, 0, sizeof(si));
 	si.sin_family = AF_INET;
