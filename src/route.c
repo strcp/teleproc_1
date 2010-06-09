@@ -31,6 +31,7 @@ static struct route *client_route = NULL;
 
 /**
  * Inicia as rotas padrão do usuário.
+ * A ordem da tabela afeta o roteamento, a prioridade é sempre da mais antiga
  * @return void
  */
 void init_default_routes(void)
@@ -87,6 +88,11 @@ struct route *add_client_route(const char *dest,
 
 		return NULL;
 	}
+	if (!ip_check(dest)||!ip_check(gateway)||!ip_check(genmask)) {
+		printf("Wrong IP|Gateway|Genmask\n");
+		return NULL;
+	}
+
 	/* Verificando se o device está disponível para possuir roteamento */
 	if (!(cinfo = get_iface_info(iface))) {
 		printf("Device unknown or not connected to a IPv4 network.\n");
@@ -232,5 +238,20 @@ void cleanup_route_table()
 		next = r->next;
 		free_route(r);
 	}
+}
+
+/**
+ * Verifica se é um endereço IPv4 válido
+ * @return 1 caso seja válido
+ * @return 0 caso seja inválido
+ */
+int ip_check(const char *ip)
+{
+	unsigned int n1, n2, n3, n4;
+	if(sscanf(ip, "%u.%u.%u.%u", &n1, &n2, &n3, &n4) != 4)
+		return 0;
+	if((n1<=255) && (n2<=255) && (n3<=255) && (n4<=255))
+		return 1;
+	return 0;
 }
 /** @} */

@@ -1,5 +1,4 @@
 BOTH:
-	- Verificar se os endereços IP são validos ao adicionar rotas.
 	- Fragmentação de pacote.
 	- Documentação.
 	- Modelador de pacote?

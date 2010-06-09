@@ -39,4 +39,5 @@ void free_route(struct route *cr);
 void show_route_table(void);
 void cleanup_route_table(void);
 void init_default_routes(void);
+int ip_check(const char *ip);
 /** @} */
