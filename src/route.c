@@ -248,9 +248,10 @@ void cleanup_route_table()
 int ip_check(const char *ip)
 {
 	unsigned int n1, n2, n3, n4;
-	if(sscanf(ip, "%u.%u.%u.%u", &n1, &n2, &n3, &n4) != 4)
+
+	if (sscanf(ip, "%u.%u.%u.%u", &n1, &n2, &n3, &n4) != 4)
 		return 0;
-	if((n1<=255) && (n2<=255) && (n3<=255) && (n4<=255))
+	if ((n1<=255) && (n2<=255) && (n3<=255) && (n4<=255))
 		return 1;
 	return 0;
 }
