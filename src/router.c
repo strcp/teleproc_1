@@ -5,7 +5,15 @@
  * Autores  : Cristiano Bolla Fernandes
  *          : Benito Michelon
  *****************************************************************/
-
+/**
+ * @mainpage Trabalho de Comunicação de Dados e Teleprocessamento
+ * <img src="../../facin.gif" alt="Logotipo da Facin"/>
+ * <center>
+ * <h1>2010/01</h1>
+ * </center>
+ * @author Cristiano Bolla Fernandes
+ * @author Benito Michelon
+ */ 
 /**
  * @defgroup router Terminal do Roteador
  * @brief Terminal de comunicação com o roteador.
