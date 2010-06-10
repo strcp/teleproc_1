@@ -88,8 +88,10 @@ struct route *add_client_route(const char *dest,
 
 		return NULL;
 	}
-	if (!ip_check(dest)||!ip_check(gateway)||!ip_check(genmask)) {
+
+	if (!ip_check(dest) || !ip_check(gateway) || !ip_check(genmask)) {
 		printf("Wrong IP|Gateway|Genmask\n");
+
 		return NULL;
 	}
 
@@ -251,7 +253,7 @@ int ip_check(const char *ip)
 
 	if (sscanf(ip, "%u.%u.%u.%u", &n1, &n2, &n3, &n4) != 4)
 		return 0;
-	if ((n1<=255) && (n2<=255) && (n3<=255) && (n4<=255))
+	if ((n1 <= 255) && (n2 <= 255) && (n3 <= 255) && (n4 <= 255))
 		return 1;
 	return 0;
 }
