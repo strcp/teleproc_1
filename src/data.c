@@ -26,7 +26,7 @@ long int file_size(FILE *fp)
 {
 	long size;
 
-	fseek(fp , 0 , SEEK_END);
+	fseek(fp, 0, SEEK_END);
 	size = ftell(fp);
 	rewind(fp);
 	printf("Size: %ld\n", size);
@@ -86,7 +86,6 @@ int save_data(struct data_info *data)
 		printf("Error writing file %s\n", data->name);
 		return -1;
 	}
-	//TODO: Definir esse retorno, talvez retornar o retorno de fwrite()
 	fclose(fp);
 
 	return ret;
