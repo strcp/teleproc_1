@@ -415,6 +415,7 @@ void _dump_packet_headers(char *pkt)
 		printf("File name: %s\n", (char *)dinfo + sizeof(struct data_info));
 		printf("File name size: %ld bytes\n\n", dinfo->name_size);
 		printf("File size: %ld bytes\n\n", dinfo->data_size);
+		/* FIXME: Remove this DEBUG MTF!! */
 		char tmp[1024];
 		memset(tmp, 0, 1024);
 		snprintf(tmp, dinfo->data_size, (char *)dinfo + sizeof(struct data_info) + dinfo->name_size + 1);

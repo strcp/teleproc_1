@@ -2,7 +2,7 @@ CC = gcc
 CFLAGS = -g -W -Wall -I../include -lpthread -lreadline -lncurses
 EXEC = client router
 SRC = $(wildcard *.c)
-OBJ = data.o route.o connection.o cmd_parser.o listener.o
+OBJ = data_structs.o data.o route.o connection.o cmd_parser.o listener.o
 
 all: $(EXEC)
 

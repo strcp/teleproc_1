@@ -105,6 +105,7 @@ int where_to_send(char *packet, usage_type_t usage_type)
 			break;
 		default:
 			if (ip->frag_off & IP_MF) {
+				//insert_packet_hash(ip);
 				/* TODO: Verifica se é continuação de algum pacote fragmentado */
 				/* TODO: Concatena em algum buffer "global" */
 				return 0;
