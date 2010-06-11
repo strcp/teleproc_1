@@ -1,4 +1,6 @@
 BOTH:
+	- Testar melhor transferencias de arquivos com o protocolo novo
+	Enviar arquivos em branco e com linhas em branco no final.
 	- Fragmentação de pacote.
 	- Documentação.
 	- Modelador de pacote?

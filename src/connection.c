@@ -268,7 +268,6 @@ struct data_info *get_packet_data(char *packet)
 		return NULL;
 
 	data = (struct data_info *)(packet + sizeof(struct iphdr) + sizeof(struct udphdr));
-	data->data = (char *)data + (sizeof(struct data_info));
 
 	return data;
 }
@@ -295,12 +294,15 @@ struct udphdr *set_udp_packet(struct udphdr *udp,
 	udp->len = sizeof(struct udphdr) + len;
 
 	data_ptr = (struct data_info *)((char *)udp + sizeof(struct udphdr));
-	data_ptr->size = (long int)((struct data_info *)data)->size;
-	snprintf(data_ptr->name, 255, (char *)((struct data_info *)data)->name);
+	memcpy((char *)data_ptr, (char *)((struct data_info *)data), len);
 
-	data_ptr->data = (char *)data_ptr + (sizeof(struct data_info));
-	memcpy(data_ptr->data, (char *)((struct data_info *)data)->data, data_ptr->size);
+	/*
+	sprintf((char *)data_ptr + sizeof(struct data_info),
+			(char *)((struct data_info *)data) + sizeof(struct data_info));
 
+	memcpy((char *)data_ptr + sizeof(struct data_info) + data_ptr->file_size + 1,
+			(char *)((struct data_info *)data), data_ptr->size);
+*/
 	return udp;
 }
 
@@ -362,6 +364,8 @@ char *create_packet(size_t data_length)
 {
 	char *packet;
 
+	printf("DATA LEN: %d\n", data_length);
+
 	if (!(packet = (char *)malloc(sizeof(struct iphdr) +
 								sizeof(struct udphdr) +
 								data_length))) {
@@ -408,8 +412,13 @@ void _dump_packet_headers(char *pkt)
 	dinfo = (struct data_info *)((char *)udp + sizeof(struct udphdr));
 	if (dinfo) {
 		printf("* DATA packet dump *\n");
-		printf("File name: %s\n", dinfo->name);
-		printf("File size: %ld bytes\n\n", dinfo->size);
+		printf("File name: %s\n", (char *)dinfo + sizeof(struct data_info));
+		printf("File name size: %ld bytes\n\n", dinfo->name_size);
+		printf("File size: %ld bytes\n\n", dinfo->data_size);
+		char tmp[1024];
+		memset(tmp, 0, 1024);
+		snprintf(tmp, dinfo->data_size, (char *)dinfo + sizeof(struct data_info) + dinfo->name_size + 1);
+		printf("Data: \"%s\"\n\n", tmp);
 	}
 }
 
@@ -495,9 +504,14 @@ int send_udp_data(const char *daddr,
 	struct iphdr *ip;
 	char *packet;
 	struct udphdr *udp;
-	int ret;
+	int ret, size;
 
-	packet = create_packet(len);
+	if (len <= MAX_DATA_SIZE) {
+		packet = create_packet(len);
+	} else {
+		packet = create_packet(len);
+		/* TODO: Fragmenta o pacote */
+	}
 	udp = get_udp_packet(packet);
 	ip = (struct iphdr *)packet;
 

@@ -44,7 +44,7 @@ struct data_info *load_data(char *file_path)
 	FILE *fp;
 	long len;
 	struct data_info *dinfo;
-	char *tmp;
+	char *tmp, *name;
 
 	if (!(fp = fopen(file_path, "rb"))) {
 		printf("Error opening file.\n");
@@ -54,16 +54,23 @@ struct data_info *load_data(char *file_path)
 		printf("Error calculating file size.\n");
 		return NULL;
 	}
-	dinfo = malloc(sizeof(struct data_info));
-	memset(dinfo, 0, sizeof(struct data_info));
 	if ((tmp = strrchr(file_path, '/')))
-		snprintf(dinfo->name, 255, ++(tmp));
+		name = ++(tmp);
 	else
-		snprintf(dinfo->name, 255, file_path);
-	dinfo->data = malloc(len);
-	dinfo->size = len;
-	fread(dinfo->data, len, 1, fp);
+		name = file_path;
+
+	dinfo = malloc(sizeof(struct data_info) + len + strlen(name) + 1);
+	memset(dinfo, 0, sizeof(struct data_info) + len + strlen(name) + 1);
+
+	sprintf(((char *)dinfo + sizeof(struct data_info)), name);
+	dinfo->name_size = strlen(name);
+	dinfo->data_size = len;
+	fread(((char *)dinfo + sizeof(struct data_info) + dinfo->name_size + 1), len, 1, fp);
 	fclose(fp);
+
+	char tm[1024];
+	memset(tm, 0, 1024);
+	snprintf(tm, dinfo->data_size, (char *)dinfo + sizeof(struct data_info) + dinfo->name_size + 1);
 
 	return dinfo;
 }
@@ -77,13 +84,18 @@ int save_data(struct data_info *data)
 {
 	FILE *fp;
 	int ret;
+	char *name, *dp;
 
-	if (!(fp = fopen(data->name, "wb"))) {
-		printf("Error opening %s\n", data->name);
+	name = ((char *)data + sizeof(struct data_info));
+
+	if (!(fp = fopen(name, "wb"))) {
+		printf("Error opening %s\n", name);
 		return -1;
 	}
-	if (!(ret = fwrite(data->data, data->size, 1, fp))) {
-		printf("Error writing file %s\n", data->name);
+
+	dp = ((char *)data + sizeof(struct data_info) + data->name_size + 1);
+	if (!(ret = fwrite(dp, data->data_size, 1, fp))) {
+		printf("Error writing file %s\n", (char *)data + sizeof(struct data_info));
 		return -1;
 	}
 	fclose(fp);
@@ -100,8 +112,6 @@ void free_data_info(struct data_info *dinfo)
 {
 	if (!dinfo)
 		return;
-	if (dinfo->data)
-		free(dinfo->data);
 
 	free(dinfo);
 }
@@ -114,7 +124,7 @@ void free_data_info(struct data_info *dinfo)
 void dump_data(struct data_info *dinfo)
 {
 	printf("Dump data info\n");
-	printf("Name: %s\n", dinfo->name);
-	printf("Size: %ld\n\n", dinfo->size);
+	printf("Name: %s\n", (char *)dinfo + sizeof(struct data_info));
+	printf("Size: %ld\n\n", dinfo->data_size);
 }
 /** @} */

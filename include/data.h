@@ -15,9 +15,8 @@
 /** Estrutura com as informações do dado */
 struct data_info
 {
-	long int size;		/**< Tamanho do arquivo carregado */
-	char name[255];		/**< Nome do arquivo */
-	void *data;			/**< Ponteiro para os dados do arquivo carregados */
+	long int name_size;		/**< Tamanho do nome do arquivo */
+	long int data_size;		/**< Tamanho do dado carregado */
 };
 
 long int file_size(FILE *fp);

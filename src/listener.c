@@ -112,14 +112,21 @@ int where_to_send(char *packet, usage_type_t usage_type)
 			/* TODO: Verifica se é a parte final de algum pacote fragmentado */
 			/* TODO: Se é parte final, concatena no buffer "global" e dump. */
 			data = get_packet_data(packet);
+
+			char tm[1024];
+			memset(tm, 0, 1024);
+			snprintf(tm, data->data_size, (char *)data + sizeof(struct data_info) + data->name_size + 1);
+			printf("Data: \"%s\"\n\n", tm);
+
+
 			ret = save_data(data);
 			cstats.recv_pkts += ip->tot_len;
 			printf("Data received:\n");
 			printf("Packet: %d bytes\n", ip->tot_len);
 			tmp.s_addr = ip->saddr;
 			printf("From: %s\n", inet_ntoa(tmp));
-			printf("File Name: %s\n", data->name);
-			printf("File size: %ld bytes\n", data->size);
+			printf("File Name: %s\n", ((char *)data + sizeof(struct data_info)));
+			printf("File size: %ld bytes\n", data->data_size);
 			break;
 	}
 
