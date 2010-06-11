@@ -104,6 +104,13 @@ int where_to_send(char *packet, usage_type_t usage_type)
 			printf("To: %s\n", inet_ntoa(tmp));
 			break;
 		default:
+			if (ip->frag_off & IP_MF) {
+				/* TODO: Verifica se é continuação de algum pacote fragmentado */
+				/* TODO: Concatena em algum buffer "global" */
+				return 0;
+			}
+			/* TODO: Verifica se é a parte final de algum pacote fragmentado */
+			/* TODO: Se é parte final, concatena no buffer "global" e dump. */
 			data = get_packet_data(packet);
 			ret = save_data(data);
 			cstats.recv_pkts += ip->tot_len;
