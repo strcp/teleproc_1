@@ -31,6 +31,7 @@
 #include <data.h>
 
 #define ROUTER_PORT 6666
+#define MAX_DATA_SIZE IP_MAXPACKET - (sizeof(struct iphdr) + sizeof(struct udphdr) + sizeof(struct data_info))
 
 /** Flag que indica se a inserção de erros está ativada ou desativada */
 static int error_enable = 0;
@@ -303,6 +304,15 @@ struct udphdr *set_udp_packet(struct udphdr *udp,
 	return udp;
 }
 
+void set_ip_frag_offset(struct iphdr *ip, const unsigned short offset)
+{
+	if (!ip)
+		return;
+
+	ip->frag_off = offset >> 3;
+	ip->frag_off |= IP_MF;	/* Mais Fragmentos */
+}
+
 /**
  * Seta os dados no header IP.
  * @param ip Ponteiro para a estrutura de header IP a ser setada.
@@ -328,7 +338,7 @@ struct iphdr *set_ip_packet(struct iphdr *ip, const in_addr_t saddr, const in_ad
 	ip->tos = 0;
 	ip->tot_len = sizeof(struct iphdr) + sizeof(struct udphdr) + len;
 	ip->id = htons(666);
-	ip->ttl = 64;
+	ip->ttl = IPDEFTTL;
 	ip->protocol = IPPROTO_UDP;
 	ip->saddr = saddr;
 	ip->daddr = daddr;
