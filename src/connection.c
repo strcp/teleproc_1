@@ -294,23 +294,7 @@ struct udphdr *set_udp_packet(struct udphdr *udp,
 	data_ptr = (struct data_info *)((char *)udp + sizeof(struct udphdr));
 	memcpy((char *)data_ptr, (char *)((struct data_info *)data), len);
 
-	/*
-	sprintf((char *)data_ptr + sizeof(struct data_info),
-			(char *)((struct data_info *)data) + sizeof(struct data_info));
-
-	memcpy((char *)data_ptr + sizeof(struct data_info) + data_ptr->file_size + 1,
-			(char *)((struct data_info *)data), data_ptr->size);
-*/
 	return udp;
-}
-
-void set_ip_frag_offset(struct iphdr *ip, const unsigned short offset)
-{
-	if (!ip)
-		return;
-
-	ip->frag_off = offset >> 3;
-	ip->frag_off |= IP_MF;	/* Mais Fragmentos */
 }
 
 /**
@@ -383,7 +367,7 @@ void _dump_packet_headers(char *pkt)
 	struct in_addr tmp;
 	struct udphdr *udp;
 	struct iphdr *ip;
-	struct data_info *dinfo;
+	//struct data_info *dinfo;
 
 	ip = (struct iphdr *)pkt;
 	printf("* IP packet dump *\n");
@@ -497,7 +481,7 @@ int send_udp_data(const char *daddr,
 	struct iphdr *ip;
 	char *packet;
 	struct udphdr *udp;
-	int ret, size;
+	int ret;
 
 	if (len <= MAX_DATA_SIZE) {
 		// frags = fragment_packet(data);

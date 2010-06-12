@@ -20,31 +20,64 @@
 
 struct fragment_list *frag_list;
 
+struct fragment_list *list_prepend(struct fragment_list *flist, struct data_info *dinfo)
+{
+	struct fragment_list *list;
+
+	list = malloc(sizeof(struct fragment_list));
+	list->frag = dinfo;
+	list->prev = NULL;
+	list->next = NULL;
+	if (flist) {
+		list->next = flist;
+		flist->prev = list;
+	}
+
+	return list;
+}
+
 struct fragment_list *fragment_packet(void *data)
 {
 	struct data_info *dinfo = (struct data_info *)data;
 	struct data_info *frags;
 	struct fragment_list *flist;
-	int i, seq, pkt_size, offset;
+	int i, seq, pkt_size, data_size;
+	char *offset;
+
+	offset = (char *)data + sizeof(struct data_info);
 
 	if (!data)
 		return NULL;
-	/* TODO: Finish this! Correct sizes, etc.. */
-	for (seq = 0, i = dinfo->tot_len; i > 0; i -= MAX_DATA_SIZE, seq++) {
-		pkt_size = i >= 0 ? MAX_DATA_SIZE : MAX_DATA_SIZE + i;
+
+	data_size = MAX_DATA_SIZE - sizeof(struct data_info);
+
+	i = (dinfo->tot_len - sizeof(struct data_info));
+	for (seq = 0; i > 0; i -= data_size, seq++) {
+
+		pkt_size = i >= 0 ? data_size : data_size + i;
+		pkt_size += sizeof(struct data_info);
 
 		frags = malloc(pkt_size);
-		if ((i - MAX_DATA_SIZE) <= 0)
+
+		frags->tot_len = pkt_size;
+		frags->seq = seq;
+		frags->name_size = 0;
+		if (!seq)
+			frags->name_size = dinfo->name_size;
+
+		frags->data_size = frags->tot_len - (sizeof(struct data_info) + frags->name_size + 1);
+
+
+		if (i <= 0)
+			/* Último fragmento */
 			frags->fragmented = 2;
 		else
 			frags->fragmented = 1;
 
-		frags->tot_len = pkt_size;
-		frags->seq = seq;
-		frags->data_size = pkt_size - sizeof(struct data_info);
-		if (!seq)
-			frags->name_size = dinfo->name_size;
-//		flist = list_prepend(flist, frags);
+
+		memcpy((char *)frags + sizeof(struct data_info), offset, frags->data_size);
+		offset += frags->data_size;
+		flist = list_prepend(flist, frags);
 	}
 	return flist;
 }
