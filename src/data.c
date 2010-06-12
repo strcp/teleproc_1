@@ -29,7 +29,6 @@ long int file_size(FILE *fp)
 	fseek(fp, 0, SEEK_END);
 	size = ftell(fp);
 	rewind(fp);
-	printf("Size: %ld\n", size);
 
 	return size;
 }
@@ -65,13 +64,14 @@ struct data_info *load_data(char *file_path)
 	sprintf(((char *)dinfo + sizeof(struct data_info)), name);
 	dinfo->name_size = strlen(name);
 	dinfo->data_size = len;
+	dinfo->tot_len = dinfo->name_size + 1 + dinfo->data_size + sizeof(struct data_info);
 	fread(((char *)dinfo + sizeof(struct data_info) + dinfo->name_size + 1), len, 1, fp);
 	fclose(fp);
-
+/*
 	char tm[1024];
 	memset(tm, 0, 1024);
 	snprintf(tm, dinfo->data_size, (char *)dinfo + sizeof(struct data_info) + dinfo->name_size + 1);
-
+*/
 	return dinfo;
 }
 

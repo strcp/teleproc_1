@@ -20,6 +20,35 @@
 
 struct fragment_list *frag_list;
 
+struct fragment_list *fragment_packet(void *data)
+{
+	struct data_info *dinfo = (struct data_info *)data;
+	struct data_info *frags;
+	struct fragment_list *flist;
+	int i, seq, pkt_size, offset;
+
+	if (!data)
+		return NULL;
+	/* TODO: Finish this! Correct sizes, etc.. */
+	for (seq = 0, i = dinfo->tot_len; i > 0; i -= MAX_DATA_SIZE, seq++) {
+		pkt_size = i >= 0 ? MAX_DATA_SIZE : MAX_DATA_SIZE + i;
+
+		frags = malloc(pkt_size);
+		if ((i - MAX_DATA_SIZE) <= 0)
+			frags->fragmented = 2;
+		else
+			frags->fragmented = 1;
+
+		frags->tot_len = pkt_size;
+		frags->seq = seq;
+		frags->data_size = pkt_size - sizeof(struct data_info);
+		if (!seq)
+			frags->name_size = dinfo->name_size;
+//		flist = list_prepend(flist, frags);
+	}
+	return flist;
+}
+#if 0
 int save_packet_fragment(struct iphdr *ip)
 {
 	struct fragment_list *flist, *fl;
@@ -56,7 +85,6 @@ int save_packet_fragment(struct iphdr *ip)
 	return 1;
 }
 
-#if 0
 struct data_info *get_defregmented_data(int ip_id)
 {
 }

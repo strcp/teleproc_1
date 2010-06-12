@@ -91,34 +91,27 @@ int where_to_send(char *packet, usage_type_t usage_type)
 		case ROUTER_USAGE:
 			//_dump_packet_headers(packet);
 			/* Router esta fazendo forward do pacote, subtrai ttl */
-			ip->ttl--;
+			ip->ttl -= IPTTLDEC;
 			ip->check = 0;
 			ip->check = in_cksum((unsigned short *)ip, ip->tot_len);
 			cstats.fw_pkts += ip->tot_len;
-			ret = send_data(packet);
 			printf("Forwarding packet:\n");
 			printf("Packet: %d bytes\n", ip->tot_len);
 			tmp.s_addr = ip->saddr;
 			printf("From: %s\n", inet_ntoa(tmp));
 			tmp.s_addr = ip->daddr;
 			printf("To: %s\n", inet_ntoa(tmp));
+			if ((ret = send_data(packet)) < 0) {
+				printf("Error forwarding packet.\n");
+				cstats.lost_pkts++;
+			}
 			break;
 		default:
-			if (ip->frag_off & IP_MF) {
-				//insert_packet_hash(ip);
-				/* TODO: Verifica se é continuação de algum pacote fragmentado */
-				/* TODO: Concatena em algum buffer "global" */
-				return 0;
-			}
-			/* TODO: Verifica se é a parte final de algum pacote fragmentado */
-			/* TODO: Se é parte final, concatena no buffer "global" e dump. */
+			/* TODO: Verifica se é continuação de algum pacote fragmentado
+			 *		Concatena em algum buffer "global" e se não for o
+			 *		último pacote retorna e aguarda mais pacotes.
+			 *		Se for o último, desfragmenta o pacote e segue o baile */
 			data = get_packet_data(packet);
-
-			char tm[1024];
-			memset(tm, 0, 1024);
-			snprintf(tm, data->data_size, (char *)data + sizeof(struct data_info) + data->name_size + 1);
-			printf("Data: \"%s\"\n\n", tm);
-
 
 			ret = save_data(data);
 			cstats.recv_pkts += ip->tot_len;

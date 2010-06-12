@@ -15,8 +15,12 @@
 /** Estrutura com as informações do dado */
 struct data_info
 {
-	long int name_size;		/**< Tamanho do nome do arquivo */
+	int name_size;			/**< Tamanho do nome do arquivo */
 	long int data_size;		/**< Tamanho do dado carregado */
+	long int tot_len;
+	unsigned char fragmented;	/* 0 = No fragments, 1 = Is a fragment, 2 = Last Fragment */
+	int id;
+	int seq;
 };
 
 long int file_size(FILE *fp);

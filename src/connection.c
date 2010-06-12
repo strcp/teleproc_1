@@ -30,8 +30,6 @@
 #include <connection.h>
 #include <data.h>
 
-#define ROUTER_PORT 6666
-#define MAX_DATA_SIZE IP_MAXPACKET - (sizeof(struct iphdr) + sizeof(struct udphdr) + sizeof(struct data_info))
 
 /** Flag que indica se a inserção de erros está ativada ou desativada */
 static int error_enable = 0;
@@ -364,8 +362,6 @@ char *create_packet(size_t data_length)
 {
 	char *packet;
 
-	printf("DATA LEN: %d\n", data_length);
-
 	if (!(packet = (char *)malloc(sizeof(struct iphdr) +
 								sizeof(struct udphdr) +
 								data_length))) {
@@ -408,19 +404,15 @@ void _dump_packet_headers(char *pkt)
 	printf("src port: %d\n", ntohs(udp->source));
 	printf("length: %d bytes\n", ntohs(udp->len));
 	printf("checksum: %X\n\n", udp->check);
-
+/*
 	dinfo = (struct data_info *)((char *)udp + sizeof(struct udphdr));
 	if (dinfo) {
 		printf("* DATA packet dump *\n");
 		printf("File name: %s\n", (char *)dinfo + sizeof(struct data_info));
 		printf("File name size: %ld bytes\n\n", dinfo->name_size);
 		printf("File size: %ld bytes\n\n", dinfo->data_size);
-		/* FIXME: Remove this DEBUG MTF!! */
-		char tmp[1024];
-		memset(tmp, 0, 1024);
-		snprintf(tmp, dinfo->data_size, (char *)dinfo + sizeof(struct data_info) + dinfo->name_size + 1);
-		printf("Data: \"%s\"\n\n", tmp);
 	}
+*/
 }
 
 /**
@@ -508,6 +500,11 @@ int send_udp_data(const char *daddr,
 	int ret, size;
 
 	if (len <= MAX_DATA_SIZE) {
+		// frags = fragment_packet(data);
+		// for (f = frags; f; f = f->next) {
+		//	ret += send_udp_data(daddr, dport, f->data, f->size);
+		//}
+		//return ret;
 		packet = create_packet(len);
 	} else {
 		packet = create_packet(len);

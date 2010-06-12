@@ -101,7 +101,7 @@ static void send_cmd(char *params)
 		return;
 	}
 	//dump_data(dinfo);
-	send_udp_data(daddr, atoi(dport), dinfo, dinfo->name_size +dinfo->data_size + sizeof(struct data_info));
+	send_udp_data(daddr, atoi(dport), dinfo, dinfo->tot_len);
 	free_data_info(dinfo);
 
 	return;
