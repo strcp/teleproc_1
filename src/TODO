@@ -1,11 +1,11 @@
 BOTH:
-	- Testar melhor transferencias de arquivos com o protocolo novo
-	Enviar arquivos em branco e com linhas em branco no final.
-	- Fragmentação de pacote.
-	- Documentação.
+	- Revisar documentação.
 	- Modelador de pacote?
 	- Simplificar route_exists
+
 CLIENT:
+	- Terminar fragmentação de pacote.
+	- Desfragmentação de pacote.
 
 ROUTER:
 	- Log das mensagens RECEBIDAS e ENVIADAS(Repassadas)
