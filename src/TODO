@@ -2,10 +2,10 @@ BOTH:
 	- Revisar documentação.
 	- Modelador de pacote?
 	- Simplificar route_exists
+	- Revisar MEMLEAKS (principalmente de dados fragmentados/listas).
+	- Revisar segfault na saida do client quando recebe dados.
 
 CLIENT:
-	- Terminar fragmentação de pacote.
-	- Desfragmentação de pacote.
 
 ROUTER:
 	- Log das mensagens RECEBIDAS e ENVIADAS(Repassadas)
