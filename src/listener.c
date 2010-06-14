@@ -113,6 +113,7 @@ int where_to_send(char *packet, usage_type_t usage_type)
 				save_packet_fragment(data);
 				if (is_packet_complete(data)) {
 					printf("COMPLETE %d\n", data->seq);
+					/* FIXME: Usar um lista dos ids */
 					struct data_info *dinfo = get_defragmented_data(frag_list);
 					ret = save_data(dinfo);
 					printf("File Name: %s\n", ((char *)dinfo + sizeof(struct data_info)));
