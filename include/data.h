@@ -21,7 +21,8 @@ struct data_info
 	unsigned char fragmented;	/* 0 = No fragments, 1 = Is a fragment, 2 = Last Fragment */
 	int id;
 	int seq;
-};
+};// __attribute__((__packed__));
+
 
 long int file_size(FILE *fp);
 struct data_info *load_data(char *file_path);
