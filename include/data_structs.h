@@ -21,5 +21,8 @@ struct fragment_list *frag_list;
 
 struct fragment_list *fragment_packet(void *data);
 int save_packet_fragment(struct data_info *dinfo);
+struct fragment_list *sort_fragments(struct fragment_list *flist);
+
 struct data_info *get_defregmented_data(struct fragment_list *frags);
-void free_fragment_list(struct fragment_list *flist);
+
+void cleanup_frag_list(void);

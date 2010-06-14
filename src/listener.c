@@ -30,6 +30,7 @@
 #include <connection.h>
 #include <cmd_parser.h>
 #include <data.h>
+#include <data_structs.h>
 
 /** Flag para sinalizar a saída ou não da thread. */
 int exit_thread = 0;
@@ -112,6 +113,15 @@ int where_to_send(char *packet, usage_type_t usage_type)
 			 *		último pacote retorna e aguarda mais pacotes.
 			 *		Se for o último, desfragmenta o pacote e segue o baile */
 			data = get_packet_data(packet);
+			if (data->fragmented == 1) {
+				save_packet_fragment(data);
+				printf("FRAG\n");
+				return 0;
+			} else if (data->fragmented == 2) {
+				struct fragment_list *f = sort_fragments(frag_list);
+				printf("END\n");
+				return 0;
+			}
 
 			ret = save_data(data);
 			cstats.recv_pkts += ip->tot_len;

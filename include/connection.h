@@ -33,12 +33,6 @@ struct connection_stats
 	unsigned int fw_pkts;		/**< Quantidade em bytes de opacotes redirecionados */
 };
 
-struct hash_table
-{
-	int index;
-	void *data;
-};
-
 /** Instância das estatísticas de conexão. */
 struct connection_stats cstats;
 

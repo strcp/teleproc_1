@@ -30,6 +30,7 @@
 #include <connection.h>
 #include <cmd_parser.h>
 #include <listener.h>
+#include <data_structs.h>
 
 
 /**
@@ -86,6 +87,7 @@ int main (int argc, char **argv)
 	}
 	clear_history();
 	cleanup_route_table();
+	cleanup_frag_list();
 
 	return 0;
 }
