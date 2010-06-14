@@ -41,15 +41,17 @@ struct fragment_list *fragment_packet(void *data)
 	struct data_info *dinfo = (struct data_info *)data;
 	struct data_info *frags;
 	struct fragment_list *flist;
-	int i, seq, pkt_size, data_size;
+	long int i, seq, pkt_size, data_size;
 	char *offset;
 
-	offset = (char *)data + sizeof(struct data_info);
 
 	if (!data)
 		return NULL;
 
+	offset = (char *)data + sizeof(struct data_info);
 	data_size = MAX_DATA_SIZE - sizeof(struct data_info);
+
+	flist = NULL;
 
 	i = (dinfo->tot_len - sizeof(struct data_info));
 	for (seq = 0; i > 0; i -= data_size, seq++) {
@@ -67,21 +69,30 @@ struct fragment_list *fragment_packet(void *data)
 
 		frags->data_size = frags->tot_len - (sizeof(struct data_info) + frags->name_size + 1);
 
-
 		if (i <= 0)
 			/* Último fragmento */
 			frags->fragmented = 2;
 		else
 			frags->fragmented = 1;
 
-
-		memcpy((char *)frags + sizeof(struct data_info), offset, frags->data_size);
-		offset += frags->data_size;
+		memcpy((char *)frags + sizeof(struct data_info), offset, frags->tot_len - sizeof(struct data_info));
+		offset += (frags->tot_len - sizeof(struct data_info));
 		flist = list_prepend(flist, frags);
 	}
 	return flist;
 }
+
 #if 0
+struct data_info *get_defregmented_data(struct fragment_list *frags)
+{
+	struct data_info *dinfo;
+	struct fragment_list *f;
+
+	for (f = frags; f; f = f->next) {
+		f->data->
+	}
+}
+
 int save_packet_fragment(struct iphdr *ip)
 {
 	struct fragment_list *flist, *fl;

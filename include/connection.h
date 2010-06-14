@@ -21,7 +21,7 @@
 #include <client.h>
 
 #define ROUTER_PORT 6666
-#define MAX_DATA_SIZE IP_MAXPACKET - (sizeof(struct iphdr) + sizeof(struct udphdr))
+#define MAX_DATA_SIZE (1500 - (sizeof(struct iphdr) + sizeof(struct udphdr)))
 
 
 /** Estruturas com os dados relativos às estatísticas de conexões do usuário. */
@@ -63,7 +63,7 @@ void _dump_packet_headers(char *pkt);
 
 int send_udp_data(const char *daddr,
 				const unsigned short dport,
-				const void *data,
+				void *data,
 				size_t len);
 int send_data(const void *packet);
 

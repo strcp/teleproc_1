@@ -29,6 +29,7 @@
 #include <route.h>
 #include <connection.h>
 #include <data.h>
+#include <data_structs.h>
 
 
 /** Flag que indica se a inserção de erros está ativada ou desativada */
@@ -452,7 +453,7 @@ int send_data(const void *packet)
 		si.sin_addr.s_addr = croute->gateway.s_addr;
 	}
 	if (sendto(sockfd, packet, ip->tot_len, 0, (struct sockaddr *)&si, sizeof(si)) == -1)
-		printf("Error sending packet.\n");
+		perror("Error sending packet: ");
 	else
 		cstats.sent_pkts += ip->tot_len;
 
@@ -473,7 +474,7 @@ int send_data(const void *packet)
  */
 int send_udp_data(const char *daddr,
 				const unsigned short dport,
-				const void *data,
+				void *data,
 				size_t len)
 {
 	struct clientnet_info *cinfo;
@@ -482,14 +483,18 @@ int send_udp_data(const char *daddr,
 	char *packet;
 	struct udphdr *udp;
 	int ret;
+	struct fragment_list *frags, *f;
 
-	if (len <= MAX_DATA_SIZE) {
-		// frags = fragment_packet(data);
-		// for (f = frags; f; f = f->next) {
-		//	ret += send_udp_data(daddr, dport, f->data, f->size);
-		//}
-		//return ret;
-		packet = create_packet(len);
+	if (len > MAX_DATA_SIZE) {
+		f = NULL;
+		frags = NULL;
+		frags = fragment_packet(data);
+		for (f = frags; f; f = f->next) {
+			ret += send_udp_data(daddr, dport, f->frag, f->frag->tot_len);
+			free(f->frag);
+		}
+		free(frags);
+		return ret;
 	} else {
 		packet = create_packet(len);
 		/* TODO: Fragmenta o pacote */
