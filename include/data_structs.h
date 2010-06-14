@@ -23,6 +23,8 @@ struct fragment_list *fragment_packet(void *data);
 int save_packet_fragment(struct data_info *dinfo);
 struct fragment_list *sort_fragments(struct fragment_list *flist);
 
-struct data_info *get_defregmented_data(struct fragment_list *frags);
+int is_packet_complete(struct data_info *dinfo);
+
+struct data_info *get_defragmented_data(struct fragment_list *frags);
 
 void cleanup_frag_list(void);

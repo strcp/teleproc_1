@@ -18,7 +18,20 @@
 #include <connection.h>
 
 
-struct fragment_list *frag_list;
+struct fragment_list *frag_list = NULL;
+
+
+static void free_frag_list(struct fragment_list *list)
+{
+	struct fragment_list *flist, *f;
+
+	for (flist = list; flist; f = flist, flist = flist->next) {
+		if (f->frag)
+			free_data_info(f->frag);
+		free(f);
+	}
+
+}
 
 struct fragment_list *sort_fragments(struct fragment_list *flist)
 {
@@ -60,11 +73,12 @@ struct fragment_list *list_prepend(struct fragment_list *flist, struct data_info
 
 struct fragment_list *fragment_packet(void *data)
 {
-	struct data_info *dinfo = (struct data_info *)data;
 	struct data_info *frags;
 	struct fragment_list *flist;
 	long int i, seq, pkt_size, data_size;
 	char *offset;
+
+	struct data_info *dinfo = (struct data_info *)data;
 
 
 	if (!data)
@@ -79,7 +93,6 @@ struct fragment_list *fragment_packet(void *data)
 	for (seq = 0; i > 0; i -= data_size, seq++) {
 
 		pkt_size = (i - data_size) >= 0 ? data_size : i;
-		printf("Size: %ld\n", pkt_size);
 		pkt_size += sizeof(struct data_info);
 
 		frags = malloc(pkt_size);
@@ -87,6 +100,7 @@ struct fragment_list *fragment_packet(void *data)
 		frags->tot_len = pkt_size;
 		frags->seq = seq;
 		frags->name_size = 0;
+		frags->id = dinfo->id;
 		if (!seq)
 			frags->name_size = dinfo->name_size;
 
@@ -105,7 +119,9 @@ struct fragment_list *fragment_packet(void *data)
 	return flist;
 }
 
-struct data_info *get_defregmented_data(struct fragment_list *frags)
+/* Defragmenta um dado e retorna como uma única estrutura */
+/* TODO */
+struct data_info *get_defragmented_data(struct fragment_list *frags)
 {
 	struct data_info *dinfo;
 	struct fragment_list *f;
@@ -115,45 +131,72 @@ struct data_info *get_defregmented_data(struct fragment_list *frags)
 	for (f = frags; f; f = f->next) {
 		printf("seq: %d\n", f->frag->seq);
 	}
+	/* FIXME: Arrumar libreação de memoria */
+	//free_frag_list(frags);
 
 	return NULL;
 }
 
+/* Salva o fragmento no buffer global */
 int save_packet_fragment(struct data_info *dinfo)
 {
-	struct fragment_list *flist;
-
-	flist = malloc(sizeof(struct fragment_list));
-	flist->prev = NULL;
-	flist->next = NULL;
-	flist->frag = dinfo;
-	if (frag_list)
-		flist->next = frag_list;
-
-	return 1;
+	if ((frag_list = list_prepend(frag_list, dinfo)))
+		return 1;
+	return 0;
 }
 
-#if 0
-struct data_info *get_defregmented_data(int ip_id)
+/* Retorna uma lista relativa ao fragmento de id */
+struct fragment_list *get_frag_id_list(int id)
 {
+	struct fragment_list *f, *seq_list;
+	struct data_info *dinfo;
+
+	seq_list = NULL;
+
+	for (f = frag_list; f; f = f->next) {
+		if (f->frag->id == id) {
+			dinfo = malloc(f->frag->tot_len);
+			memcpy(dinfo, f->frag, f->frag->tot_len);
+			seq_list = list_prepend(seq_list, dinfo);
+		}
+	}
+
+	return seq_list;
 }
 
-void free_hash(struct hash_table * ht)
+int fragment_list_length(struct fragment_list *flist)
 {
+	struct fragment_list *f;
+	int n = 0;
+
+	for (f = flist; f; f = f->next) {
+		n++;
+	}
+
+	return n;
 }
 
-void free_fragments(int id)
+/* Verifica se o pacote está completo */
+int is_packet_complete(struct data_info *dinfo)
 {
+	struct fragment_list *f, *flist;
+	int last, n;
+
+	last = -1;
+	flist = get_frag_id_list(dinfo->id);
+	for (f = flist; f; f = f->next) {
+		if (f->frag->fragmented == 2)
+			last = f->frag->seq;
+	}
+
+	n = fragment_list_length(flist);
+	/* FIXME: Arrumar free desta lista */
+	//free_frag_list(flist);
+	/* n - 1 == last? já que os números de seq começam em 0 */
+	return  (n - 1) == last ? 1 : 0;
 }
-#endif
 
 void cleanup_frag_list(void)
 {
-	struct fragment_list *flist;
-
-	for (flist = frag_list; flist; flist = flist->next) {
-		if (flist->frag)
-			free_data_info(flist->frag);
-		free(flist);
-	}
+	free_frag_list(frag_list);
 }

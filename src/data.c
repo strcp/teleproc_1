@@ -64,6 +64,7 @@ struct data_info *load_data(char *file_path)
 	sprintf(((char *)dinfo + sizeof(struct data_info)), name);
 	dinfo->name_size = strlen(name);
 	dinfo->data_size = len;
+	dinfo->id = rand();
 	dinfo->tot_len = dinfo->name_size + 1 + dinfo->data_size + sizeof(struct data_info);
 	fread(((char *)dinfo + sizeof(struct data_info) + dinfo->name_size + 1), len, 1, fp);
 	fclose(fp);

@@ -113,14 +113,16 @@ int where_to_send(char *packet, usage_type_t usage_type)
 			 *		último pacote retorna e aguarda mais pacotes.
 			 *		Se for o último, desfragmenta o pacote e segue o baile */
 			data = get_packet_data(packet);
-			if (data->fragmented == 1) {
+			if (data->fragmented) {
 				save_packet_fragment(data);
-				printf("FRAG\n");
-				return 0;
-			} else if (data->fragmented == 2) {
-				struct fragment_list *f = sort_fragments(frag_list);
-				printf("END\n");
-				return 0;
+				if (is_packet_complete(data)) {
+					printf("COMPLETE %d\n", data->seq);
+					struct data_info *dinfo = get_defragmented_data(frag_list);
+					//ret = save_data(dinfo);
+					return 0;	// Isso sera removido
+				} else {
+					return 0;
+				}
 			}
 
 			ret = save_data(data);
