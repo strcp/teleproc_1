@@ -108,31 +108,33 @@ int where_to_send(char *packet, usage_type_t usage_type)
 			}
 			break;
 		default:
-			/* TODO: Verifica se é continuação de algum pacote fragmentado
-			 *		Concatena em algum buffer "global" e se não for o
-			 *		último pacote retorna e aguarda mais pacotes.
-			 *		Se for o último, desfragmenta o pacote e segue o baile */
 			data = get_packet_data(packet);
 			if (data->fragmented) {
 				save_packet_fragment(data);
 				if (is_packet_complete(data)) {
 					printf("COMPLETE %d\n", data->seq);
 					struct data_info *dinfo = get_defragmented_data(frag_list);
-					//ret = save_data(dinfo);
-					return 0;	// Isso sera removido
+					ret = save_data(dinfo);
+					printf("File Name: %s\n", ((char *)dinfo + sizeof(struct data_info)));
+					printf("File size: %ld bytes\n", dinfo->data_size);
 				} else {
+					cstats.recv_pkts += ip->tot_len;
+					printf("Data received:\n");
+					printf("Packet: %d bytes\n", ip->tot_len);
+					tmp.s_addr = ip->saddr;
+					printf("From: %s\n", inet_ntoa(tmp));
 					return 0;
 				}
+			} else {
+				ret = save_data(data);
+				printf("File Name: %s\n", ((char *)data + sizeof(struct data_info)));
+				printf("File size: %ld bytes\n", data->data_size);
 			}
-
-			ret = save_data(data);
 			cstats.recv_pkts += ip->tot_len;
 			printf("Data received:\n");
 			printf("Packet: %d bytes\n", ip->tot_len);
 			tmp.s_addr = ip->saddr;
 			printf("From: %s\n", inet_ntoa(tmp));
-			printf("File Name: %s\n", ((char *)data + sizeof(struct data_info)));
-			printf("File size: %ld bytes\n", data->data_size);
 			break;
 	}
 

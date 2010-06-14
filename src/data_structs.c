@@ -125,16 +125,39 @@ struct data_info *get_defragmented_data(struct fragment_list *frags)
 {
 	struct data_info *dinfo;
 	struct fragment_list *f;
+	long int size;
+	char *data;
 
+	if (!frags)
+		return NULL;
+
+	//dinfo = malloc
+	size = 0;
 	frags = sort_fragments(frags);
 
 	for (f = frags; f; f = f->next) {
-		printf("seq: %d\n", f->frag->seq);
+		size += f->frag->tot_len - sizeof(struct data_info);
 	}
+	dinfo = malloc(size + sizeof(struct data_info));
+	dinfo->tot_len = size + sizeof(struct data_info);
+
+	data = (char *)dinfo + sizeof(struct data_info);
+	for (f = frags; f; f = f->next) {
+		memcpy(data, (char *)f->frag + sizeof(struct data_info), f->frag->tot_len - sizeof(struct data_info));
+		data = data + (f->frag->tot_len - sizeof(struct data_info));
+		dinfo->data_size += f->frag->tot_len - sizeof(struct data_info);
+		if (f->frag->seq == 0) {
+			dinfo->name_size = f->frag->name_size;
+			dinfo->id = f->frag->id;
+		}
+	}
+	dinfo->data_size -= (dinfo->name_size + 1);	/* Não esquecendo do \0 :-) */
+	dinfo->seq = 0;
+	dinfo->fragmented = 0;
 	/* FIXME: Arrumar libreação de memoria */
 	//free_frag_list(frags);
 
-	return NULL;
+	return dinfo;
 }
 
 /* Salva o fragmento no buffer global */
