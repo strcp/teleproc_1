@@ -114,7 +114,9 @@ int where_to_send(char *packet, usage_type_t usage_type)
 				if (is_packet_complete(data)) {
 					printf("COMPLETE %d\n", data->seq);
 					/* FIXME: Usar um lista dos ids */
-					struct data_info *dinfo = get_defragmented_data(frag_list);
+					struct fragment_list *flist = get_frag_id_list(data->id);
+					struct data_info *dinfo = get_defragmented_data(flist);
+					//free_frag_list(flist);
 					ret = save_data(dinfo);
 					printf("File Name: %s\n", ((char *)dinfo + sizeof(struct data_info)));
 					printf("File size: %ld bytes\n", dinfo->data_size);
@@ -191,7 +193,7 @@ void *listener(void *usage_type)
 		}
 
 		where_to_send(buf, (usage_type_t)usage_type);
-		sleep(1);
+		//usleep(100);
 	}
 	close(sockfd);
 	free(buf);

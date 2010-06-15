@@ -205,16 +205,14 @@ int is_packet_complete(struct data_info *dinfo)
 	struct fragment_list *f, *flist;
 	int last, n;
 
-	last = -1;
-	flist = get_frag_id_list(dinfo->id);
-	for (f = flist; f; f = f->next) {
-		if (f->frag->fragmented == 2)
-			last = f->frag->seq;
+	for (n = 0, last = -1, f = frag_list; f; f = f->next) {
+		if (f->frag->id == dinfo->id) {
+			n++;
+			if (f->frag->fragmented == 2)
+				last = f->frag->seq;
+		}
 	}
 
-	n = fragment_list_length(flist);
-	/* FIXME: Arrumar free desta lista */
-	//free_frag_list(flist);
 	/* n - 1 == last? já que os números de seq começam em 0 */
 	return  (n - 1) == last ? 1 : 0;
 }
