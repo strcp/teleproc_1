@@ -62,8 +62,8 @@ struct fragment_list *sort_fragments(struct fragment_list *flist)
 			f->prev = tmp;
 			if (tmp){
 				tmp->next = f;
-				flist = tmp;
-			}
+			} else 
+				flist = f;
 		}
 	}
 	for (f = flist; f; f = f->next) {
