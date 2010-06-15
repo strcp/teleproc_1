@@ -168,22 +168,53 @@ int save_packet_fragment(struct data_info *dinfo)
 	return 0;
 }
 
+struct fragment_list *list_steal(struct fragment_list *node)
+{
+	struct fragment_list *tmp;
+	if(node->next)
+		node->next->prev = node->prev;
+	if(node->prev)
+		node->prev->next = node->next;
+/*	tmp = node->next;
+	printf("*****\n\n");
+	printf("*****\n\n");
+	tmp->prev = node->prev;
+	tmp = node->prev;
+	tmp->next = node->next;
+	printf("*****\n\n");
+	tmp->next = NULL;
+	tmp->prev = NULL;*/
+	node->next = NULL;
+	node->prev = NULL;
+	return node;
+}
+
 /* Retorna uma lista relativa ao fragmento de id */
 struct fragment_list *get_frag_id_list(int id)
 {
-	struct fragment_list *f, *seq_list;
+	struct fragment_list *f, *seq_list, *aux;
 	struct data_info *dinfo;
+	
 
 	seq_list = NULL;
-
-	for (f = frag_list; f; f = f->next) {
+	aux = NULL;
+	for (f = frag_list; f; f = aux ? aux : f->next) {
+		aux = NULL;
+		printf("f->frag = %d\tid=%d\n", f->frag->id, id);
 		if (f->frag->id == id) {
-			dinfo = malloc(f->frag->tot_len);
-			memcpy(dinfo, f->frag, f->frag->tot_len);
-			seq_list = list_prepend(seq_list, dinfo);
+			//dinfo = malloc(f->frag->tot_len);
+			//memcpy(dinfo, f->frag, f->frag->tot_len);
+			aux = f->next?f->next:f;
+			f = list_steal(f);
+			seq_list = list_prepend(seq_list, f->frag);
+			printf("Antes\n");
+			//free_data_info(f->frag);
+			if (!aux->next) f = aux;
+			else free(f);
+			printf("Despues\n");
 		}
 	}
-
+		printf("Daindo\n");
 	return seq_list;
 }
 
