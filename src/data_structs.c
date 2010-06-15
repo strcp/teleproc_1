@@ -54,13 +54,13 @@ struct fragment_list *sort_fragments(struct fragment_list *flist)
 			f->prev = f->next->prev;
 		*/
 			f->prev->next = f->next;
-			if(f->next)
+			if (f->next)
 				f->next->prev = f->prev;
 			tmp = f->prev->prev;
 			f->prev->prev = f;
 			f->next = f->prev;
 			f->prev = tmp;
-			if(tmp){
+			if (tmp){
 				tmp->next = f;
 				flist = tmp;
 			}
