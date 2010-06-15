@@ -218,7 +218,7 @@ int is_packet_complete(struct data_info *dinfo)
 	struct fragment_list *f;
 	int last, n;
 
-	for (n = 0, last = -1, f = frag_list; f; f = f->next) {
+	for (n = 0, last = -2, f = frag_list; f; f = f->next) {
 		if (f->frag->id == dinfo->id) {
 			n++;
 			if (f->frag->fragmented == 2)
