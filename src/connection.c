@@ -519,7 +519,7 @@ int send_udp_data(const char *daddr,
 
 	free_clientnet_info(cinfo);
 	free(packet);
-
+	usleep(500);
 	return ret;
 }
 /** @} */
