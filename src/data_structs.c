@@ -48,6 +48,7 @@ static void free_frag_list(struct fragment_list *list)
 	}
 }
 
+#if 0
 static void dump_frag_list(struct fragment_list *flist) {
 	struct fragment_list *f;
 
@@ -57,6 +58,7 @@ static void dump_frag_list(struct fragment_list *flist) {
 	printf("\n");
 
 }
+#endif
 
 struct fragment_list *sort_fragments(struct fragment_list *flist)
 {
