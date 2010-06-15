@@ -184,15 +184,12 @@ struct fragment_list *get_frag_id_list(int id)
 
 	seq_list = NULL;
 	aux = NULL;
-	for (f = frag_list; f; f = !f ? aux : f->next) {
-		aux = NULL;
+	for (f = frag_list; f; f = aux) {
+		aux = f->next;
 		if (f->frag->id == id) {
-			aux = f->next ? f->next : f;
 			f = list_steal(f);
 			seq_list = list_prepend(seq_list, f->frag);
-			if (!aux->next)
-				f = aux;
-			else
+			if (f)
 				free(f);
 		}
 	}
