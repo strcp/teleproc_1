@@ -97,7 +97,8 @@ int where_to_send(char *packet, usage_type_t usage_type)
 			ip->check = in_cksum((unsigned short *)ip, ip->tot_len);
 			cstats.fw_pkts += ip->tot_len;
 			printf("Forwarding packet:\n");
-			printf("Packet: %d bytes\n", ip->tot_len);
+			printf("Packet ttl %d\n", ip->ttl);
+			printf("Packet size: %d bytes\n", ip->tot_len);
 			tmp.s_addr = ip->saddr;
 			printf("From: %s\n", inet_ntoa(tmp));
 			tmp.s_addr = ip->daddr;
