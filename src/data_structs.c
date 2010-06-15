@@ -25,12 +25,15 @@ static void free_frag_list(struct fragment_list *list)
 {
 	struct fragment_list *flist, *f;
 
+	if (!list)
+		return;
+
 	for (flist = list; flist; f = flist, flist = flist->next) {
 		if (f->frag)
 			free_data_info(f->frag);
 		free(f);
+		f = NULL;
 	}
-
 }
 
 struct fragment_list *sort_fragments(struct fragment_list *flist)
@@ -155,7 +158,7 @@ struct data_info *get_defragmented_data(int id)
 	dinfo->seq = 0;
 	dinfo->fragmented = 0;
 	/* FIXME: Arrumar libreação de memoria */
-	//free_frag_list(frags);
+	// free_frag_list(frags);
 
 	return dinfo;
 }
@@ -191,9 +194,11 @@ struct fragment_list *get_frag_id_list(int id)
 		aux = f->next;
 		if (f->frag->id == id) {
 			f = list_steal(f);
+			if (f == frag_list)
+				frag_list = frag_list->next ? frag_list->next : NULL;
 			seq_list = list_prepend(seq_list, f->frag);
-			if (f)
-				free(f);
+			free(f);
+			f = NULL;
 		}
 	}
 
