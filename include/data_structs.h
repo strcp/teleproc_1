@@ -25,7 +25,7 @@ struct fragment_list *sort_fragments(struct fragment_list *flist);
 
 int is_packet_complete(struct data_info *dinfo);
 
-struct data_info *get_defragmented_data(struct fragment_list *frags);
+struct data_info *get_defragmented_data(int id);
 struct fragment_list *get_frag_id_list(int id);
 
 void cleanup_frag_list(void);

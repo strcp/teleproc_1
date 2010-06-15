@@ -121,18 +121,15 @@ struct fragment_list *fragment_packet(void *data)
 
 /* Defragmenta um dado e retorna como uma única estrutura */
 /* TODO */
-struct data_info *get_defragmented_data(struct fragment_list *frags)
+struct data_info *get_defragmented_data(int id)
 {
 	struct data_info *dinfo;
-	struct fragment_list *f;
+	struct fragment_list *f, *frags;
 	long int size;
 	char *data;
 
-	if (!frags)
-		return NULL;
-
-	//dinfo = malloc
 	size = 0;
+	frags = get_frag_id_list(id);
 	frags = sort_fragments(frags);
 
 	for (f = frags; f; f = f->next) {
