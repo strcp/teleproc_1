@@ -1,5 +1,6 @@
 BOTH:
 	- Testar o envia através router.
+	- Testar evnio com erros inseridos.
 	- Revisar documentação.
 	- Modelador de pacote?
 	- Simplificar route_exists
