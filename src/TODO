@@ -1,10 +1,9 @@
 BOTH:
+	- Testar o envia através router.
 	- Revisar documentação.
 	- Modelador de pacote?
 	- Simplificar route_exists
 	- Revisar MEMLEAKS (principalmente de dados fragmentados/listas).
-	- Revisar segfault na saida do client quando recebe dados.
-	- Otimizar algoritmos para evitar perda de pacotes.
 	- Timeout para liberar os dados armazenados incompletos.
 
 CLIENT:
