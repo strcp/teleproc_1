@@ -21,7 +21,7 @@
 #include <client.h>
 
 #define ROUTER_PORT 6666
-#define MAX_DATA_SIZE (1500 - (sizeof(struct iphdr) + sizeof(struct udphdr)))
+#define MAX_DATA_SIZE (15000 - (sizeof(struct iphdr) + sizeof(struct udphdr)))
 
 
 /** Estruturas com os dados relativos às estatísticas de conexões do usuário. */

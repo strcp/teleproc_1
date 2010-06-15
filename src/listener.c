@@ -190,7 +190,6 @@ void *listener(void *usage_type)
 		}
 
 		where_to_send(buf, (usage_type_t)usage_type);
-		//usleep(100);
 	}
 	close(sockfd);
 	free(buf);
