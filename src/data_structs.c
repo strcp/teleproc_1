@@ -46,15 +46,30 @@ struct fragment_list *sort_fragments(struct fragment_list *flist)
 		if (!f->prev || f->prev->frag->seq <= f->frag->seq) {
 			f = f->next;
 		} else {
-			tmp = f->next;
-			f->next = f->prev;
-			f->prev = f->next->prev;
-
+		/*	tmp = f->next;
 			f->next->prev = f;
 			f->next->next = tmp;
+
+			f->next = f->prev;
+			f->prev = f->next->prev;
+		*/
+			f->prev->next = f->next;
+			if(f->next)
+				f->next->prev = f->prev;
+			tmp = f->prev->prev;
+			f->prev->prev = f;
+			f->next = f->prev;
+			f->prev = tmp;
+			if(tmp){
+				tmp->next = f;
+				flist = tmp;
+			}
 		}
 	}
-
+	for (f = flist; f; f = f->next) {
+		printf("%d\t", f->frag->seq);
+	}
+	printf("\n");
 	return flist;
 }
 
