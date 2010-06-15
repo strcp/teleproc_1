@@ -133,6 +133,9 @@ struct data_info *get_defragmented_data(int id)
 	frags = sort_fragments(frags);
 
 	for (f = frags; f; f = f->next) {
+		printf("DEBUGSEQ: %d\n", f->frag->seq);
+		if (f->frag->seq == 0)
+			printf("DEBUGNOME: %s\n", (char *)f->frag + sizeof(struct data_info));
 		size += f->frag->tot_len - sizeof(struct data_info);
 	}
 	dinfo = malloc(size + sizeof(struct data_info));
