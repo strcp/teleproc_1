@@ -112,17 +112,28 @@ int where_to_send(char *packet, usage_type_t usage_type)
 			if (data->fragmented) {
 				save_packet_fragment(data);
 				if (is_packet_complete(data)) {
-					printf("COMPLETE %d\n", data->seq);
+					printf("Fragmented Data complete\n");
 					struct data_info *dinfo = get_defragmented_data(data->id);
 					ret = save_data(dinfo);
+
+					cstats.recv_pkts += ip->tot_len;
+					printf("Data received:\n");
+					printf("Packet: %lld bytes\n", dinfo->tot_len);
+					tmp.s_addr = ip->saddr;
+					printf("From: %s\n", inet_ntoa(tmp));
+
 					printf("File Name: %s\n", ((char *)dinfo + sizeof(struct data_info)));
 					printf("File size: %ld bytes\n", dinfo->data_size);
+					break;
 				} else {
 					cstats.recv_pkts += ip->tot_len;
+					printf(".");
+					/*
 					printf("Data received:\n");
 					printf("Packet: %d bytes\n", ip->tot_len);
 					tmp.s_addr = ip->saddr;
 					printf("From: %s\n", inet_ntoa(tmp));
+					*/
 					return 0;
 				}
 			} else {
@@ -177,7 +188,7 @@ void *listener(void *usage_type)
 	}
 
 	while (!exit_thread) {
-		printf("Awaiting for packets.\n");
+//		printf("Awaiting for packets.\n");
 
 		addr_len = sizeof(struct sockaddr_in);
 

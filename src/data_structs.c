@@ -48,7 +48,7 @@ static void free_frag_list(struct fragment_list *list)
 	}
 }
 
-void dump_frag_list(struct fragment_list *flist){
+static void dump_frag_list(struct fragment_list *flist) {
 	struct fragment_list *f;
 
 	for (f = flist; f; f = f->next) {
@@ -103,9 +103,10 @@ struct fragment_list *list_prepend(struct fragment_list *flist, struct data_info
 		list->next = flist;
 		flist->prev = list;
 	}
-	printf("Prepended %d\n", list->frag->seq);
+	/*
 	if(!list->frag->seq)
 		dump_frag_list(flist);
+	*/
 	return list;
 }
 
@@ -171,9 +172,7 @@ struct data_info *get_defragmented_data(int id)
 	frags = sort_fragments(frags);
 
 	for (f = frags; f; f = f->next) {
-		printf("DEBUGSEQ: %d\n", f->frag->seq);
-		if (f->frag->seq == 0)
-			printf("DEBUGNOME: %s\n", (char *)f->frag + sizeof(struct data_info));
+		//printf("DEBUGSEQ: %d\n", f->frag->seq);
 		size += f->frag->tot_len - sizeof(struct data_info);
 	}
 	dinfo = malloc(size + sizeof(struct data_info));
@@ -253,7 +252,6 @@ int is_packet_complete(struct data_info *dinfo)
 				last = f->frag->seq;
 		}
 	}
-	printf("@@@PACKET %d-%d\n",(n -1), last);
 	/* n - 1 == last? já que os números de seq começam em 0 */
 	return  (n - 1) == last ? 1 : 0;
 }
