@@ -21,6 +21,18 @@
 struct fragment_list *frag_list = NULL;
 
 
+int fragment_list_length(struct fragment_list *flist)
+{
+	struct fragment_list *f;
+	int n = 0;
+
+	for (f = flist; f; f = f->next) {
+		n++;
+	}
+
+	return n;
+}
+
 static void free_frag_list(struct fragment_list *list)
 {
 	struct fragment_list *flist, *f;
@@ -35,6 +47,7 @@ static void free_frag_list(struct fragment_list *list)
 		f = NULL;
 	}
 }
+
 void dump_frag_list(struct fragment_list *flist){
 	struct fragment_list *f;
 
@@ -44,38 +57,38 @@ void dump_frag_list(struct fragment_list *flist){
 	printf("\n");
 
 }
+
 struct fragment_list *sort_fragments(struct fragment_list *flist)
 {
-	struct fragment_list *f, *tmp;
+	struct fragment_list *f, **ret;
+	int n, i;
 
 	f = flist;
-	printf("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\n");
-	while (f) {
-		if (!f->prev || f->prev->frag->seq <= f->frag->seq) {
-			f = f->next;
-		} else {
-		/*	tmp = f->next;
-			f->next->prev = f;
-			f->next->next = tmp;
+	n = fragment_list_length(flist);
+	ret = malloc(n * sizeof(struct fragment_list));
+	memset(ret, 0, n * sizeof(struct fragment_list));
 
-			f->next = f->prev;
-			f->prev = f->next->prev;
-		*/
-			f->prev->next = f->next;
-			if (f->next)
-				f->next->prev = f->prev;
-			tmp = f->prev->prev;
-			f->prev->prev = f;
-			f->next = f->prev;
-			f->prev = tmp;
-			if (tmp){
-				tmp->next = f;
-			} else 
-				flist = f;
-		}
-		printf("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB\n");
+	for (f = flist; f; f = f->next, i++) {
+		ret[f->frag->seq] = f;
 	}
-	return flist;
+
+	if (n != i) {
+		printf("Packet was not complete. Droping..\n");
+		free(ret);
+		return NULL;
+	}
+
+	for (i = 0; i < n; i++) {
+		ret[i]->prev = NULL;
+		ret[i]->next = NULL;
+		if (ret[i + 1]) {
+			ret[i]->next = ret[i + 1];
+			ret[i + 1]->prev = ret[i];
+		}
+	}
+	f = ret[0];
+	free(ret);
+	return f;
 }
 
 struct fragment_list *list_prepend(struct fragment_list *flist, struct data_info *dinfo)
@@ -154,10 +167,8 @@ struct data_info *get_defragmented_data(int id)
 	char *data;
 
 	size = 0;
-	printf("##########################################################\n");
 	frags = get_frag_id_list(id);
 	frags = sort_fragments(frags);
-	printf("##########################################################\n");
 
 	for (f = frags; f; f = f->next) {
 		printf("DEBUGSEQ: %d\n", f->frag->seq);
@@ -227,18 +238,6 @@ struct fragment_list *get_frag_id_list(int id)
 	}
 
 	return seq_list;
-}
-
-int fragment_list_length(struct fragment_list *flist)
-{
-	struct fragment_list *f;
-	int n = 0;
-
-	for (f = flist; f; f = f->next) {
-		n++;
-	}
-
-	return n;
 }
 
 /* Verifica se o pacote está completo */
