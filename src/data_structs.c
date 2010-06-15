@@ -184,7 +184,7 @@ struct fragment_list *get_frag_id_list(int id)
 
 	seq_list = NULL;
 	aux = NULL;
-	for (f = frag_list; f; f = aux ? aux->next : f->next) {
+	for (f = frag_list; f; f = !f ? aux : f->next) {
 		aux = NULL;
 		if (f->frag->id == id) {
 			aux = f->next ? f->next : f;
