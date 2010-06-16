@@ -419,27 +419,27 @@ int send_data(const void *packet)
 	udp = get_udp_packet((char *)packet);
 
 	if (!(croute = get_route_by_daddr(ip->daddr))) {
-		printf("Error getting route rule\n");
+		printf("* Error getting route rule\n");
 		return -1;
 	}
 
 	if (!(cinfo = get_iface_info(croute->iface))) {
-		printf("Error getting interface.\n");
+		printf("* Error getting interface.\n");
 		return -1;
 	}
 	printf("Sending Data:\n");
 	tmp.s_addr = ip->daddr;
-	printf("Destination: %s:%d\n", inet_ntoa(tmp), udp->dest);
+	printf("\tDestination: %s:%d\n", inet_ntoa(tmp), udp->dest);
 	tmp.s_addr = ip->saddr;
-	printf("From: %s:%d\n", inet_ntoa(tmp), udp->source);
-	printf("Gateway: %s\n", inet_ntoa(croute->gateway));
-	printf("Packet size: %d bytes\n", ip->tot_len);
+	printf("\tFrom: %s:%d\n", inet_ntoa(tmp), udp->source);
+	printf("\tGateway: %s\n", inet_ntoa(croute->gateway));
+	printf("\tPacket size: %d bytes\n", ip->tot_len);
 
 	memset(&si, 0, sizeof(si));
 	si.sin_family = AF_INET;
 
 	if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) == -1) {
-		printf("Error creating socket.\n");
+		printf("* Error creating socket.\n");
 		return -1;
 	}
 	if (!croute->gateway.s_addr) {
@@ -453,7 +453,7 @@ int send_data(const void *packet)
 		si.sin_addr.s_addr = croute->gateway.s_addr;
 	}
 	if (sendto(sockfd, packet, ip->tot_len, 0, (struct sockaddr *)&si, sizeof(si)) == -1)
-		perror("Error sending packet: ");
+		perror("* Error sending packet: ");
 	else
 		cstats.sent_pkts += ip->tot_len;
 
@@ -503,12 +503,12 @@ int send_udp_data(const char *daddr,
 	ip = (struct iphdr *)packet;
 
 	if (!(croute = get_route_by_daddr(inet_addr(daddr)))) {
-		printf("Error getting route rule\n");
+		printf("* Error getting route rule *\n");
 		return -1;
 	}
 
 	if (!(cinfo = get_iface_info(croute->iface))) {
-		printf("Error getting interface.\n");
+		printf("* Error getting interface. *\n");
 		return -1;
 	}
 

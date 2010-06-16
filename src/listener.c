@@ -97,14 +97,14 @@ int where_to_send(char *packet, usage_type_t usage_type)
 			ip->check = in_cksum((unsigned short *)ip, ip->tot_len);
 			cstats.fw_pkts += ip->tot_len;
 			printf("Forwarding packet:\n");
-			printf("Packet ttl %d\n", ip->ttl);
-			printf("Packet size: %d bytes\n", ip->tot_len);
+			printf("\tPacket ttl %d\n", ip->ttl);
+			printf("\tPacket size: %d bytes\n", ip->tot_len);
 			tmp.s_addr = ip->saddr;
-			printf("From: %s\n", inet_ntoa(tmp));
+			printf("\tFrom: %s\n", inet_ntoa(tmp));
 			tmp.s_addr = ip->daddr;
-			printf("To: %s\n", inet_ntoa(tmp));
+			printf("\tTo: %s\n", inet_ntoa(tmp));
 			if ((ret = send_data(packet)) < 0) {
-				printf("Error forwarding packet.\n");
+				printf("* Error forwarding packet. *\n");
 				cstats.lost_pkts++;
 			}
 			break;
@@ -113,19 +113,18 @@ int where_to_send(char *packet, usage_type_t usage_type)
 			if (data->fragmented) {
 				save_packet_fragment(data);
 				if (is_packet_complete(data)) {
-					printf("Fragmented Data complete\n");
+					printf("Fragmented Data complete.\n");
 					struct data_info *dinfo = get_defragmented_data(data->id);
 					ret = save_data(dinfo);
 
 					cstats.recv_pkts += ip->tot_len;
 					printf("Data received:\n");
-					printf("Packet: %lld bytes\n", dinfo->tot_len);
+					printf("\tPacket: %lld bytes\n", dinfo->tot_len);
 					tmp.s_addr = ip->saddr;
-					printf("From: %s\n", inet_ntoa(tmp));
+					printf("\tFrom: %s\n", inet_ntoa(tmp));
 
-					printf("File Name: %s\n", ((char *)dinfo + sizeof(struct data_info)));
-					printf("File size: %ld bytes\n", dinfo->data_size);
-					break;
+					printf("\tFile Name: %s\n", ((char *)dinfo + sizeof(struct data_info)));
+					printf("\tFile size: %ld bytes\n", dinfo->data_size);
 				} else {
 					cstats.recv_pkts += ip->tot_len;
 					printf(".");
@@ -135,18 +134,19 @@ int where_to_send(char *packet, usage_type_t usage_type)
 					tmp.s_addr = ip->saddr;
 					printf("From: %s\n", inet_ntoa(tmp));
 					*/
-					return 0;
+					ret = 0;
 				}
-			} else {
-				ret = save_data(data);
-				printf("File Name: %s\n", ((char *)data + sizeof(struct data_info)));
-				printf("File size: %ld bytes\n", data->data_size);
+				break;
 			}
+			ret = save_data(data);
 			cstats.recv_pkts += ip->tot_len;
 			printf("Data received:\n");
-			printf("Packet: %d bytes\n", ip->tot_len);
+			printf("\tPacket: %d bytes\n", ip->tot_len);
 			tmp.s_addr = ip->saddr;
-			printf("From: %s\n", inet_ntoa(tmp));
+			printf("\tFrom: %s\n", inet_ntoa(tmp));
+			printf("\tFile Name: %s\n", ((char *)data + sizeof(struct data_info)));
+			printf("\tFile size: %ld bytes\n", data->data_size);
+
 			break;
 	}
 
