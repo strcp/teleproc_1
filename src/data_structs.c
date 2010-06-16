@@ -178,6 +178,7 @@ struct data_info *get_defragmented_data(int id)
 		size += f->frag->tot_len - sizeof(struct data_info);
 	}
 	dinfo = malloc(size + sizeof(struct data_info));
+	memset(dinfo, 0, size + sizeof(struct data_info));
 	dinfo->tot_len = size + sizeof(struct data_info);
 
 	data = (char *)dinfo + sizeof(struct data_info);
