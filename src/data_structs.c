@@ -6,6 +6,12 @@
  *          : Benito Michelon
  *****************************************************************/
 
+/**
+ * @defgroup data_struct Manipulação de estrutura de dados
+ * @brief Manipulação das listas de dados fragmentados.
+ * @{
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -17,7 +23,7 @@
 #include <data.h>
 #include <connection.h>
 
-
+/** Lista que guarda os fragmentos dos dados recebidos */
 struct fragment_list *frag_list = NULL;
 
 
@@ -263,3 +269,5 @@ void cleanup_frag_list(void)
 {
 	free_frag_list(frag_list);
 }
+
+/** @} */
