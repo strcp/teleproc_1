@@ -82,6 +82,7 @@ int where_to_send(char *packet, usage_type_t usage_type)
 	ip = (struct iphdr *)packet;
 	udp = get_udp_packet(packet);
 
+	/* Verifica a sanidade do pacote, se estiver com erro, dropa */
 	if (!sanity_check(ip)) {
 		printf("Packet received with error, dropping.\n");
 		cstats.lost_pkts++;
@@ -90,7 +91,6 @@ int where_to_send(char *packet, usage_type_t usage_type)
 
 	switch (usage_type) {
 		case ROUTER_USAGE:
-			//_dump_packet_headers(packet);
 			/* Router esta fazendo forward do pacote, subtrai ttl */
 			ip->ttl -= IPTTLDEC;
 			ip->check = 0;
@@ -113,6 +113,8 @@ int where_to_send(char *packet, usage_type_t usage_type)
 			if (data->fragmented) {
 				save_packet_fragment(data);
 				if (is_packet_complete(data)) {
+					/* Se o pacote for um fragmento e completar o dado, salva e
+					 * remove do buffer */
 					printf("Fragmented Data complete.\n");
 					struct data_info *dinfo = get_defragmented_data(data->id);
 					ret = save_data(dinfo);
@@ -126,18 +128,16 @@ int where_to_send(char *packet, usage_type_t usage_type)
 					printf("\tFile Name: %s\n", ((char *)dinfo + sizeof(struct data_info)));
 					printf("\tFile size: %ld bytes\n", dinfo->data_size);
 				} else {
+					/* Se o pacote for um fragmento, apenas adiciona ao buffer e
+					 * adiciona seus dados à estatística. */
 					cstats.recv_pkts += ip->tot_len;
 					printf(".");
-					/*
-					printf("Data received:\n");
-					printf("Packet: %d bytes\n", ip->tot_len);
-					tmp.s_addr = ip->saddr;
-					printf("From: %s\n", inet_ntoa(tmp));
-					*/
 					ret = 0;
 				}
 				break;
 			}
+			/* Se o pacote não for um fragmento, salva e adiciona seus dados à
+			 * estatística. */
 			ret = save_data(data);
 			cstats.recv_pkts += ip->tot_len;
 			printf("Data received:\n");
@@ -175,29 +175,29 @@ void *listener(void *usage_type)
 	server.sin_addr.s_addr = htonl(INADDR_ANY);
 	switch ((usage_type_t)usage_type) {
 		case ROUTER_USAGE:
+			/* Se for router, usa a porta default de router. */
 			server.sin_port = htons(ROUTER_PORT);
 			break;
 		default:
+			/* Se for client, usa a porta definida pelo usuário. */
 			server.sin_port = htons(client_port);
 			break;
 	}
 
 	if ((bind(sockfd, (struct sockaddr *)&server, sizeof(struct sockaddr_in))) < 0) {
-		perror("Error binding port to listen");
+		perror("* Error binding port to listen");
 		close(sockfd);
 		pthread_exit((void *)EXIT_FAILURE);
 	}
 
 	while (!exit_thread) {
-//		printf("Awaiting for packets.\n");
-
 		addr_len = sizeof(struct sockaddr_in);
 
 		buf = malloc(MAXSIZE);
 		memset(buf, 0, MAXSIZE);
 
 		if ((recvfrom(sockfd, buf, MAXSIZE - 1 , 0, (struct sockaddr *)&client, &addr_len)) == -1) {
-			perror("Error receiving data (recvfrom)");
+			perror("* Error receiving data (recvfrom)");
 			pthread_exit((void *)EXIT_FAILURE);
 		}
 
