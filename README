@@ -1,2 +1,4 @@
-- Documentação presente no diretório docs.
+- Documentação presente no diretório docs/refs.
+- Em HTML docs/refs/html/index.html
+- Em pdf docs/refs/latex/refman.pdf
 - Para re-gerar a documentação, rodar o doxygen na raiz do projeto.
