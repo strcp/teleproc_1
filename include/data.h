@@ -15,13 +15,13 @@
 /** Estrutura com as informações do dado */
 struct data_info
 {
-	int name_size;			/**< Tamanho do nome do arquivo */
+	int name_size;			/**< Tamanho do nome do arquivo sem /0 */
 	long int data_size;		/**< Tamanho do dado carregado */
-	long long int tot_len;
+	long long int tot_len;	/**< Tamanho total do pacote */
 	unsigned char fragmented;	/* 0 = No fragments, 1 = Is a fragment, 2 = Last Fragment */
-	int id;
-	int seq;
-} __attribute__((__packed__));
+	int id;					/**< Número de identificação do pacote */
+	int seq;				/**< Número de sequência do pacote */
+} __attribute__((__packed__));	/* Evitando padding do processador */
 
 
 long int file_size(FILE *fp);

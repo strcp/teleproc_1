@@ -6,18 +6,21 @@
  *          : Benito Michelon
  *****************************************************************/
 
+/**
+ * @ingroup data_struct
+ * @{
+ */
 #include <netinet/in.h>
 #include <netinet/ip.h>
 #include <netinet/udp.h>
 
+/** Estrutura para lista de fragmentos. */
 struct fragment_list
 {
-	struct data_info *frag;
-	struct fragment_list *next;
-	struct fragment_list *prev;
+	struct data_info *frag;		/**< Ponteiro para o fragmento. */
+	struct fragment_list *next;	/**< Ponteiro para o próximo elemento. */
+	struct fragment_list *prev;	/**< Ponteiro para o elemento anterior. */
 };
-
-struct fragment_list *frag_list;
 
 struct fragment_list *fragment_packet(void *data);
 int save_packet_fragment(struct data_info *dinfo);
