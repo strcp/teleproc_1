@@ -312,7 +312,6 @@ struct iphdr *set_ip_packet(struct iphdr *ip, const in_addr_t saddr, const in_ad
 		printf("Error setting ip packet.\n");
 		return NULL;
 	}
-	/* FIXME: packet fragmentation */
 	if (len > 0xFFFF) {
 		printf("Package too big.\n");
 		return NULL;
@@ -497,7 +496,6 @@ int send_udp_data(const char *daddr,
 		return ret;
 	} else {
 		packet = create_packet(len);
-		/* TODO: Fragmenta o pacote */
 	}
 	udp = get_udp_packet(packet);
 	ip = (struct iphdr *)packet;

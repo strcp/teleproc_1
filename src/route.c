@@ -36,7 +36,6 @@ static struct route *client_route = NULL;
  */
 void init_default_routes(void)
 {
-	/* TODO */
 	struct clientnet_info *cinfo, *ptr;
 
 	cinfo = get_ifaces_info();
@@ -181,7 +180,7 @@ void show_route_table(void)
 	struct route *ptr;
 
 	printf("IP routing table\n");
-	printf("Destination \tGateway \tGenmask \t\tIface\n");
+	printf("Destination \tGateway \tGenmask \tIface\n");
 	for (ptr = client_route; ptr; ptr = ptr->next) {
 		printf("%s \t", inet_ntoa(ptr->dest));
 		printf("%s \t", inet_ntoa(ptr->gateway));
